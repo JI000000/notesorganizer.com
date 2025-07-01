@@ -1,33 +1,69 @@
-import { CheckCircle } from 'lucide-react'; // A popular icon library
+import {
+  ArrowPathIcon,
+  CloudArrowUpIcon,
+  FingerPrintIcon,
+  LockClosedIcon,
+} from "@heroicons/react/24/outline";
 
-const painPoints = [
-  { text: "Your notes are scattered across five different apps." },
-  { text: "Brilliant ideas are lost in a sea of unstructured text." },
-  { text: "Your 'Second Brain' feels more like a 'Second Junk Drawer'." },
-  { text: "You wrote it down, but can't find it when it matters most." },
+const features = [
+  {
+    name: "Scattered Notes",
+    description: "Brilliant ideas are lost in a sea of unstructured text across five different apps.",
+    icon: CloudArrowUpIcon,
+  },
+  {
+    name: "Second Junk Drawer",
+    description: "Your 'Second Brain' feels more like a 'Second Junk Drawer,' full of clutter and forgotten items.",
+    icon: LockClosedIcon,
+  },
+  {
+    name: "Findability Crisis",
+    description: "You wrote it down, but you can't find it when it matters most, leading to repeated work.",
+    icon: ArrowPathIcon,
+  },
+  {
+    name: "Lacking a System",
+    description: "You&apos;re not disorganized. You just lack a system. We're here to give you that system, for free.",
+    icon: FingerPrintIcon,
+  },
 ];
 
-const PainPointsSection = () => {
+export default function PainPoints() {
   return (
-    <section id="pain-points" className="w-full py-20 bg-gray-900">
-      <div className="container mx-auto px-6 text-center">
-        <h2 className="text-4xl font-bold text-white">Does This Sound Familiar?</h2>
-        <div className="mt-10 grid md:grid-cols-2 gap-8 max-w-4xl mx-auto text-left">
-          {painPoints.map((point, index) => (
-            <div key={index} className="flex items-start space-x-3">
-              <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
-              <p className="text-lg text-gray-300">{point.text}</p>
-            </div>
-          ))}
+    <div className="bg-white dark:bg-gray-900 py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl lg:text-center">
+          <h2 className="text-base font-semibold leading-7 text-indigo-600 dark:text-indigo-400">
+            Does This Sound Familiar?
+          </h2>
+          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+            The endless cycle of digital note-taking
+          </p>
+          <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
+            You&apos;re not disorganized. You just lack a system. At NotesOrganizer, we believe effective knowledge management isn&apos;t about finding another &quot;perfect&quot; app—it&apos;s about implementing the right framework.
+          </p>
         </div>
-        <p className="mt-12 text-2xl font-semibold text-white max-w-3xl mx-auto">
-          You're not disorganized. You just lack a system.
-          <br />
-          <span className="text-brand-blue">We're here to give you that system, for free.</span>
-        </p>
+        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
+          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
+            {features.map((feature) => (
+              <div key={feature.name} className="relative pl-16">
+                <dt className="text-base font-semibold leading-7 text-gray-900 dark:text-white">
+                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
+                    <feature.icon
+                      className="h-6 w-6 text-white"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  {feature.name}
+                </dt>
+                <dd className="mt-2 text-base leading-7 text-gray-600 dark:text-gray-300">
+                  {feature.description}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </div>
-    </section>
+    </div>
   );
-};
-
-export default PainPointsSection; 
+} 

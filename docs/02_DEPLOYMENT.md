@@ -1,14 +1,25 @@
 # Deployment Guide
 
-This document outlines the steps for deploying the project.
+This project is deployed on **Vercel**.
 
-*This is a living document and will be updated as the project evolves.*
+## Process
 
-## Initial Deployment (Vercel)
+Deployment is automated through Vercel's Git integration.
 
-1.  Connect the GitHub repository (`JI000000/notesorganizer.com`) to your Vercel account.
-2.  Vercel will automatically detect that this is a Next.js project.
-3.  No special build commands or environment variables are needed for the initial deployment.
-4.  Vercel will build and deploy the `main` branch to the production URL.
-5.  All subsequent pushes to the `main` branch will trigger automatic production deployments.
-6.  All Pull Requests will generate their own preview deployment URLs for review. 
+1.  **Repository Connection**: The GitHub repository for this project is connected to a Vercel project.
+2.  **Branch Trigger**: A push or merge to the `main` branch automatically triggers a new deployment on Vercel.
+3.  **Build**: Vercel uses the `npm run build` command (defined in `package.json`) to build the Next.js application.
+4.  **Deploy**: After a successful build, Vercel deploys the application to production and assigns it to the `notesorganizer.com` domain. The previous deployment is kept available for instant rollbacks if needed.
+
+## Environment Variables
+
+All sensitive keys (Supabase keys, AI API keys) must be configured in the Vercel project's environment variable settings. They should not be hardcoded in the repository.
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `OPENAI_API_KEY` (or other AI provider keys)
+
+## Domains
+
+The `notesorganizer.com` domain is assigned as the production domain in Vercel.
+The `notesorganizer.app` domain is configured at the DNS provider (Cloudflare) to have a permanent (301) redirect to `https://www.notesorganizer.com`. 
