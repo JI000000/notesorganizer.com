@@ -5,7 +5,7 @@ const toolkitItems = [
     icon: <Book size={32} />,
     title: "In-Depth Guides",
     description: "From Zettelkasten to PARA, master the frameworks that turn information into knowledge.",
-    link: "/blog/pkm-ultimate-guide"
+    link: "/knowledge-hub"
   },
   {
     icon: <Zap size={32} />,
@@ -17,7 +17,7 @@ const toolkitItems = [
     icon: <BrainCircuit size={32} />,
     title: "Actionable Systems",
     description: "Learn step-by-step processes to build and maintain your 'Second Brain' in Obsidian, Logseq, or Notion.",
-    link: "/blog/build-your-second-brain"
+    link: "/knowledge-hub"
   }
 ];
 
