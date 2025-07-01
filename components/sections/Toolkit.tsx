@@ -1,4 +1,5 @@
-import { Book, Zap, BrainCircuit } from 'lucide-react';
+import { Book, Zap, BrainCircuit, PenTool, Combine, FileText } from 'lucide-react';
+import Link from 'next/link';
 
 const toolkitItems = [
   {
@@ -21,6 +22,27 @@ const toolkitItems = [
   }
 ];
 
+const features = [
+  {
+    icon: FileText,
+    title: 'AI Note Summarizer',
+    description: 'Paste any long-form text and get a concise, AI-powered summary in seconds. Perfect for quick reviews.',
+    link: '/tools/summarizer'
+  },
+  {
+    icon: PenTool,
+    title: 'AI Title Generator',
+    description: 'Struggling with a title? Input your note\'s content and get a list of compelling, creative titles.',
+    link: '/tools/title-generator'
+  },
+  {
+    icon: Combine,
+    title: 'Ultimate PKM Guide',
+    description: 'Our flagship, in-depth guide covering frameworks, tools, and best practices for modern knowledge management.',
+    link: '/knowledge-hub/pkm-ultimate-guide'
+  }
+];
+
 const ToolkitSection = () => {
   return (
     <section id="toolkit" className="w-full py-20">
@@ -38,6 +60,22 @@ const ToolkitSection = () => {
               <a href={item.link} className="mt-6 inline-block text-brand-blue font-semibold hover:underline">
                 Learn More &rarr;
               </a>
+            </div>
+          ))}
+        </div>
+        <div className="mt-12 grid md:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <div key={index} className="bg-brand-dark-light rounded-lg p-6 flex flex-col">
+              <div className="flex-shrink-0">
+                <feature.icon className="text-blue-500" size={32} />
+                <h3 className="text-xl font-bold text-white mt-4">{feature.title}</h3>
+                <p className="text-gray-400 mt-2 flex-grow">{feature.description}</p>
+              </div>
+              <div className="mt-4">
+                <Link href={feature.link} className="text-blue-500 font-semibold hover:text-blue-400 transition-colors">
+                  {feature.link.startsWith('/tools') ? 'Try the tool' : 'Read the guide'} &rarr;
+                </Link>
+              </div>
             </div>
           ))}
         </div>
