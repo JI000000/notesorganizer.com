@@ -1,8 +1,21 @@
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import HeroSection from "@/components/sections/Hero";
+import PainPointsSection from "@/components/sections/PainPoints";
+import ToolkitSection from "@/components/sections/Toolkit";
+import ConversionSection from "@/components/sections/Conversion";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-brand-dark text-white">
-      <h1 className="text-5xl font-bold">notesorganizer.com</h1>
-      <p className="mt-4 text-lg text-gray-400">The foundation is laid. The rocket is being built.</p>
-    </main>
+    <>
+      <Header />
+      <main className="flex flex-col items-center">
+        <HeroSection />
+        <PainPointsSection />
+        <ToolkitSection />
+        <ConversionSection />
+      </main>
+      <Footer />
+    </>
   );
 } 
