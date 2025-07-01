@@ -1,5 +1,5 @@
 ---
-title: 'The Definitive Guide to Personal Knowledge Management (PKM) for 2024'
+title: 'The Definitive Guide to Personal Knowledge Management (PKM) for 2025'
 date: '2025-07-15'
 author: 'The NotesOrganizer Team'
 ---
