@@ -3,7 +3,7 @@ import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/sections/Hero";
 import PainPointsSection from "@/components/sections/PainPoints";
 import ToolkitSection from "@/components/sections/Toolkit";
-import ConversionSection from "@/components/sections/Conversion";
+import { Conversion } from "@/components/sections/Conversion";
 
 export default function Home() {
   return (
@@ -13,7 +13,7 @@ export default function Home() {
         <HeroSection />
         <PainPointsSection />
         <ToolkitSection />
-        <ConversionSection />
+        <Conversion />
       </main>
       <Footer />
     </>
