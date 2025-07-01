@@ -1,30 +1,30 @@
 import {
-  ArrowPathIcon,
-  CloudArrowUpIcon,
-  FingerPrintIcon,
-  LockClosedIcon,
+  DocumentTextIcon,
+  MagnifyingGlassIcon,
+  PuzzlePieceIcon,
+  LinkIcon,
 } from "@heroicons/react/24/outline";
 
 const features = [
   {
     name: "Scattered Notes",
-    description: "Brilliant ideas are lost in a sea of unstructured text across five different apps.",
-    icon: CloudArrowUpIcon,
+    description: "Your brilliant ideas are lost across Notion, Obsidian, Apple Notes, and random text files.",
+    icon: DocumentTextIcon,
   },
   {
     name: "Second Junk Drawer",
-    description: "Your 'Second Brain' feels more like a 'Second Junk Drawer,' full of clutter and forgotten items.",
-    icon: LockClosedIcon,
+    description: "Your 'Second Brain' feels more like a 'Second Junk Drawer'—full of clutter and forgotten gems.",
+    icon: PuzzlePieceIcon,
   },
   {
-    name: "Findability Crisis",
-    description: "You wrote it down, but you can't find it when it matters most, leading to repeated work.",
-    icon: ArrowPathIcon,
+    name: "Search Frustration", 
+    description: "You know you wrote it down somewhere, but finding it when you need it most feels impossible.",
+    icon: MagnifyingGlassIcon,
   },
   {
-    name: "Lacking a System",
-    description: "You&apos;re not disorganized. You just lack a system. We're here to give you that system, for free.",
-    icon: FingerPrintIcon,
+    name: "Missing Connections",
+    description: "Related ideas remain isolated, preventing the emergence of deeper insights and breakthroughs.",
+    icon: LinkIcon,
   },
 ];
 
@@ -33,7 +33,7 @@ export default function PainPoints() {
     <div className="bg-gray-900 py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
-          <h2 className="text-base font-semibold leading-7 text-indigo-400">
+          <h2 className="text-base font-semibold leading-7 text-brand-blue">
             Does This Sound Familiar?
           </h2>
           <p className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -48,7 +48,7 @@ export default function PainPoints() {
             {features.map((feature) => (
               <div key={feature.name} className="relative pl-16">
                 <dt className="text-base font-semibold leading-7 text-white">
-                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
+                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-blue">
                     <feature.icon
                       className="h-6 w-6 text-white"
                       aria-hidden="true"
