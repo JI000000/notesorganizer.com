@@ -1,82 +1,107 @@
-import { Book, Zap, BrainCircuit, PenTool, Combine, FileText } from 'lucide-react';
+import { Book, Zap, BrainCircuit, PenTool, Combine, FileText, BotMessageSquare, Tags, ListTodo, CaseUpper, BookCopy, Pilcrow } from 'lucide-react';
 import Link from 'next/link';
 
-const toolkitItems = [
+const guides = [
   {
-    icon: <Book size={32} />,
-    title: "In-Depth Guides",
-    description: "From Zettelkasten to PARA, master the frameworks that turn information into knowledge.",
-    link: "/knowledge-hub"
-  },
-  {
-    icon: <Zap size={32} />,
-    title: "Free AI Micro-Tools",
-    description: "Automate the tedious parts of PKM with tools for summarizing, tagging, and cleaning your notes.",
-    link: "/tools"
-  },
-  {
-    icon: <BrainCircuit size={32} />,
-    title: "Actionable Systems",
-    description: "Learn step-by-step processes to build and maintain your 'Second Brain' in Obsidian, Logseq, or Notion.",
-    link: "/knowledge-hub"
-  }
-];
-
-const features = [
-  {
-    icon: FileText,
-    title: 'AI Note Summarizer',
-    description: 'Paste any long-form text and get a concise, AI-powered summary in seconds. Perfect for quick reviews.',
-    link: '/tools/summarizer'
-  },
-  {
-    icon: PenTool,
-    title: 'AI Title Generator',
-    description: 'Struggling with a title? Input your note\'s content and get a list of compelling, creative titles.',
-    link: '/tools/title-generator'
+    icon: BookCopy,
+    title: 'The Ultimate Guide to PKM',
+    description: 'Our flagship, in-depth guide covering frameworks, tools, and best practices for modern knowledge management.',
+    link: '/knowledge-hub/pkm-ultimate-guide',
+    status: 'live',
   },
   {
     icon: Combine,
-    title: 'Ultimate PKM Guide',
-    description: 'Our flagship, in-depth guide covering frameworks, tools, and best practices for modern knowledge management.',
-    link: '/knowledge-hub/pkm-ultimate-guide'
+    title: 'Zettelkasten vs. PARA vs. LYT',
+    description: 'A deep dive into the most popular knowledge management frameworks. Find the right one for you.',
+    link: '/knowledge-hub/pkm-foundations-zettelkasten-para-lyt',
+    status: 'live',
+  },
+  {
+    icon: BrainCircuit,
+    title: 'How to Build Your Second Brain',
+    description: 'A step-by-step tutorial for implementing your chosen framework using popular tools like Obsidian or Logseq.',
+    link: '#',
+    status: 'soon',
   }
+];
+
+const tools = [
+  {
+    icon: BotMessageSquare,
+    name: "AI Note Summarizer",
+    description: "Paste any note or article. Get a perfect, one-paragraph summary in seconds.",
+    href: "/tools/summarizer",
+    status: 'live',
+  },
+  {
+    icon: CaseUpper,
+    name: "AI Title Generator",
+    description: "Struggling with a title? Get a list of compelling, creative titles for your content.",
+    href: "/tools/title-generator",
+    status: 'live',
+  },
+  {
+    icon: Tags,
+    name: "AI Tag Suggester",
+    description: "Input your text, get 5-10 relevant tags to categorize your knowledge.",
+    href: "#",
+    status: 'soon',
+  },
+  {
+    icon: ListTodo,
+    name: "AI Action-Item Extractor",
+    description: "Find all the to-dos and action items from your meeting notes automatically.",
+    href: "#",
+    status: 'soon',
+  },
 ];
 
 const ToolkitSection = () => {
   return (
-    <section id="toolkit" className="w-full py-20">
+    <section id="toolkit" className="w-full py-24 sm:py-32">
       <div className="container mx-auto px-6 text-center">
-        <h2 className="text-4xl font-bold text-white">Your Free PKM Toolkit</h2>
-        <p className="mt-4 text-lg text-gray-400">Everything you need to get started, all in one place.</p>
-        <div className="mt-12 grid md:grid-cols-3 gap-8">
-          {toolkitItems.map((item, index) => (
-            <div key={index} className="bg-gray-900 p-8 rounded-lg border border-gray-700 hover:border-brand-blue hover:scale-105 transition-all">
-              <div className="flex justify-center text-brand-blue mb-4">
-                {item.icon}
-              </div>
-              <h3 className="text-2xl font-bold text-white">{item.title}</h3>
-              <p className="mt-4 text-gray-400">{item.description}</p>
-              <a href={item.link} className="mt-6 inline-block text-brand-blue font-semibold hover:underline">
-                Learn More &rarr;
-              </a>
-            </div>
+        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          Your Free PKM Toolkit
+        </h2>
+        <p className="mt-4 text-lg max-w-2xl mx-auto text-gray-400">
+          A curated collection of in-depth guides and AI-powered utilities to build your Second Brain.
+        </p>
+      </div>
+      
+      <div className="container mx-auto px-6 mt-16">
+        <div className="text-left mb-8">
+            <h3 className="text-2xl font-semibold text-white">In-Depth Guides</h3>
+            <p className="text-gray-400 mt-1">Master the frameworks of modern knowledge management.</p>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {guides.map((guide) => (
+             <Link key={guide.title} href={guide.link} className="block p-8 bg-slate-800/50 border border-white/10 rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 h-full relative">
+                {guide.status === 'soon' && (
+                  <div className="absolute top-4 right-4 px-2 py-1 text-xs font-semibold text-gray-300 bg-gray-700 rounded-full">Coming Soon</div>
+                )}
+                <guide.icon className="h-10 w-10 text-blue-500" />
+                <h4 className="mt-4 text-xl font-bold text-gray-100">{guide.title}</h4>
+                <p className="mt-2 text-gray-400">{guide.description}</p>
+             </Link>
           ))}
         </div>
-        <div className="mt-12 grid md:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div key={index} className="bg-brand-dark-light rounded-lg p-6 flex flex-col">
-              <div className="flex-shrink-0">
-                <feature.icon className="text-blue-500" size={32} />
-                <h3 className="text-xl font-bold text-white mt-4">{feature.title}</h3>
-                <p className="text-gray-400 mt-2 flex-grow">{feature.description}</p>
-              </div>
-              <div className="mt-4">
-                <Link href={feature.link} className="text-blue-500 font-semibold hover:text-blue-400 transition-colors">
-                  {feature.link.startsWith('/tools') ? 'Try the tool' : 'Read the guide'} &rarr;
-                </Link>
-              </div>
-            </div>
+      </div>
+
+      <div className="container mx-auto px-6 mt-20">
+        <div className="text-left mb-8">
+            <h3 className="text-2xl font-semibold text-white">Free AI Micro-Tools</h3>
+            <p className="text-gray-400 mt-1">Automate the tedious parts of structuring your knowledge.</p>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {tools.map((tool) => (
+             <Link key={tool.name} href={tool.href} className="block p-8 bg-slate-800/50 border border-white/10 rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 h-full relative">
+                {tool.status === 'soon' && (
+                  <div className="absolute top-4 right-4 px-2 py-1 text-xs font-semibold text-gray-300 bg-gray-700 rounded-full">Coming Soon</div>
+                )}
+                <tool.icon className="h-10 w-10 text-blue-500" />
+                <h4 className="mt-4 text-xl font-bold text-gray-100">{tool.name}</h4>
+                <p className="mt-2 text-gray-400">{tool.description}</p>
+             </Link>
           ))}
         </div>
       </div>

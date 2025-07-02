@@ -1,46 +1,58 @@
 import { NextResponse } from 'next/server'
+import OpenAI from 'openai'
 
-// This is a simplified mock. In a real scenario, you'd use a library 
-// like zod for validation and call an AI service (OpenAI, Gemini, etc.).
-const validateRequest = (body: any) => {
-  if (!body.content || typeof body.content !== 'string' || body.content.length < 50) {
-    return 'Content must be a string of at least 50 characters.'
-  }
-  return null
-}
-
-const generateMockTitles = (content: string) => {
-  const firstSentence = content.split('. ')[0]
-  return [
-    { style: 'Click-Worthy', title: `You Won't Believe What's Inside This Note About ${firstSentence.substring(0, 20)}...` },
-    { style: 'Academic', title: `An Analysis of ${firstSentence.substring(0, 30)}` },
-    { style: 'SEO Optimized', title: `The Ultimate Guide to Understanding ${firstSentence.substring(0, 25)}` },
-    { style: 'Intriguing Question', title: `What If You Re-examined Your Notes on ${firstSentence.substring(0, 20)}?` },
-    { style: 'Simple & Direct', title: `Notes on ${firstSentence.substring(0, 40)}` },
-  ]
-}
+// Reuse the same OpenRouter-configured OpenAI client
+const openai = new OpenAI({
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: process.env.OPENAI_API_KEY,
+  defaultHeaders: {
+    'HTTP-Referer': 'https://notesorganizer.com',
+    'X-Title': 'NotesOrganizer.com',
+  },
+})
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.json()
-    const validationError = validateRequest(body)
-
-    if (validationError) {
-      return NextResponse.json({ message: validationError }, { status: 400 })
-    }
-
-    // Simulate AI processing delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    const titles = generateMockTitles(body.content)
-
-    return NextResponse.json({ titles }, { status: 200 })
-
-  } catch (error) {
-    console.error('Title generation API error:', error)
+  if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json(
-      { message: 'An internal server error occurred.' },
+      { error: 'Service not configured.' },
       { status: 500 }
     )
+  }
+
+  try {
+    const { text } = await request.json()
+    if (!text || typeof text !== 'string' || text.trim().length === 0) {
+      return NextResponse.json({ error: 'Invalid input text' }, { status: 400 })
+    }
+
+    const response = await openai.chat.completions.create({
+      model: 'openai/gpt-3.5-turbo',
+      messages: [
+        {
+          role: 'system',
+          content: "You are a world-class expert in copywriting and content strategy. Your task is to generate exactly 5 compelling titles for a given piece of text. Please provide them in a numbered list format (1. Title one, 2. Title two, etc.), with each title on a new line. Do not add any extra text or commentary.",
+        },
+        {
+          role: 'user',
+          content: `Please generate 5 titles for the following text:\n\n${text}`,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 200,
+    })
+
+    const rawTitles = response.choices[0]?.message?.content?.trim()
+    if (!rawTitles) {
+      throw new Error('Failed to generate titles.')
+    }
+    
+    // Parse the numbered list into a string array
+    const titles = rawTitles.split('\n').map(t => t.replace(/^\d+\.\s*/, '').trim()).filter(t => t.length > 0)
+
+    return NextResponse.json({ titles })
+
+  } catch (error) {
+    console.error('Error in generate-title API:', error)
+    return NextResponse.json({ error: 'Failed to process your request.' }, { status: 500 })
   }
 } 

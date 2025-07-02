@@ -1,51 +1,71 @@
-import { Zap, Bot, FileText } from 'lucide-react';
-import Link from 'next/link';
+import Link from "next/link";
+import { BookText, Tags, ListTodo, Type, CaseUpper } from "lucide-react";
 
 const tools = [
   {
-    icon: <FileText size={32} />,
-    title: "AI Note Summarizer",
+    name: "AI Note Summarizer",
     description: "Paste any note or article. Get a perfect, one-paragraph summary in seconds.",
-    link: "/tools/summarizer",
-    status: "Available"
+    href: "/tools/summarizer",
+    icon: BookText,
+    status: "live",
   },
   {
-    icon: <Bot size={32} />,
-    title: "AI Tag Suggester",
+    name: "AI Title Generator",
+    description: "Struggling with a title? Get a list of compelling, creative titles for your content.",
+    href: "/tools/title-generator",
+    icon: CaseUpper,
+    status: "live",
+  },
+  {
+    name: "AI Tag Suggester",
     description: "Input your text, get 5-10 relevant tags to categorize your knowledge.",
-    link: "#",
-    status: "Coming Soon"
+    href: "#",
+    icon: Tags,
+    status: "soon",
   },
   {
-    icon: <Zap size={32} />,
-    title: "AI Action-Item Extractor",
+    name: "AI Action-Item Extractor",
     description: "Find all the to-dos and action items from your meeting notes automatically.",
-    link: "#",
-    status: "Coming Soon"
-  }
+    href: "#",
+    icon: ListTodo,
+    status: "soon",
+  },
 ];
 
-export default function ToolsIndex() {
+export default function ToolsPage() {
   return (
-    <div className="container mx-auto px-6 py-24 pt-48">
-      <h1 className="text-5xl font-bold text-white mb-4">AI Micro-Tools</h1>
-      <p className="text-lg text-gray-400 mb-12">Automate the tedious parts of Personal Knowledge Management.</p>
-      <div className="grid md:grid-cols-3 gap-8">
-        {tools.map((tool, index) => (
-          <Link key={index} href={tool.link} className={`block bg-gray-900 p-8 rounded-lg border border-gray-700 hover:border-brand-blue hover:scale-105 transition-all ${tool.status === 'Coming Soon' ? 'opacity-50 cursor-not-allowed' : ''}`}>
-            <div className="flex text-brand-blue mb-4">
-              {tool.icon}
-            </div>
-            <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-bold text-white">{tool.title}</h3>
-              {tool.status === 'Coming Soon' && (
-                <span className="bg-gray-700 text-xs font-semibold text-gray-300 px-2 py-1 rounded-full">{tool.status}</span>
-              )}
-            </div>
-            <p className="mt-4 text-gray-400">{tool.description}</p>
-          </Link>
-        ))}
-      </div>
-    </div>
+    <>
+      <main className="container mx-auto px-4 py-12">
+        <div className="text-center max-w-3xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-100">
+            AI Micro-Tools
+          </h1>
+          <p className="mt-4 text-lg text-gray-300">
+            Automate the tedious parts of Personal Knowledge Management.
+          </p>
+        </div>
+
+        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {tools.map((tool) => (
+            <Link key={tool.name} href={tool.href}>
+              <div className="block p-8 bg-slate-800/50 dark:bg-slate-800/50 border border-white/10 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 h-full relative">
+                {tool.status === 'soon' && (
+                  <div className="absolute top-4 right-4 px-2 py-1 text-xs font-semibold text-gray-300 bg-gray-700 rounded-full">
+                    Coming Soon
+                  </div>
+                )}
+                <tool.icon className="h-10 w-10 text-blue-500" />
+                <h3 className="mt-4 text-xl font-bold text-gray-100">
+                  {tool.name}
+                </h3>
+                <p className="mt-2 text-gray-400">
+                  {tool.description}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </main>
+    </>
   );
 } 

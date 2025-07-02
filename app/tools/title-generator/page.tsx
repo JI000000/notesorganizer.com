@@ -1,108 +1,110 @@
 'use client'
 
 import { useState } from 'react'
-import { Sparkles, Clipboard, Check } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 
-type TitleSuggestion = {
-  style: string;
-  title: string;
-}
-
-const TitleGeneratorPage = () => {
-  const [content, setContent] = useState('')
-  const [titles, setTitles] = useState<TitleSuggestion[]>([])
-  const [state, setState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [error, setError] = useState('')
-  const [copiedTitle, setCopiedTitle] = useState<string | null>(null)
+export default function TitleGeneratorPage() {
+  const [text, setText] = useState('')
+  const [titles, setTitles] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setState('loading')
-    setError('')
+    setError(null)
     setTitles([])
-    setCopiedTitle(null)
+    
+    if (text.trim().length < 50) {
+      setError('Please enter at least 50 characters to generate titles.')
+      return
+    }
+
+    setIsLoading(true)
 
     try {
       const response = await fetch('/api/generate-title', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
       })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate titles.')
+      }
+
       const data = await response.json()
-      if (!response.ok) throw new Error(data.message)
       setTitles(data.titles)
-      setState('success')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred.')
-      setState('error')
+
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const handleCopy = (title: string) => {
-    navigator.clipboard.writeText(title)
-    setCopiedTitle(title)
-    setTimeout(() => setCopiedTitle(null), 2000)
-  }
-
   return (
-    <div className="py-12 sm:py-16">
-      <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <Sparkles className="mx-auto h-12 w-12 text-blue-500" />
-          <h1 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
-            AI Note Title Generator
+    <>
+      <main className="container mx-auto px-4 py-12">
+        <div className="text-center max-w-3xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-100">
+            AI Title Generator
           </h1>
-          <p className="mt-4 text-lg text-gray-400">
-            Stuck on a title? Paste your note content below and let our AI generate compelling titles for you.
+          <p className="mt-4 text-lg text-gray-300">
+            Struggling with a title? Paste your note&rsquo;s content below and get a list of compelling, creative titles in seconds.
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto mt-10">
+        <div className="mt-12 max-w-3xl mx-auto">
           <form onSubmit={handleSubmit}>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Paste your note here. Minimum 50 characters..."
-              rows={8}
-              className="w-full p-4 rounded-md bg-brand-dark-light border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-              required
-              minLength={50}
-            />
-            <button
-              type="submit"
-              disabled={state === 'loading'}
-              className="mt-4 w-full flex items-center justify-center gap-2 px-6 py-3 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-dark focus:ring-blue-500 disabled:bg-gray-500 disabled:cursor-not-allowed"
-            >
-              {state === 'loading' ? 'Generating...' : 'Generate Titles'}
-            </button>
+            <div className="relative">
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Paste your note, article, or any text here (at least 50 characters)..."
+                className="w-full h-48 p-4 border border-white/10 bg-white/5 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 text-gray-200 placeholder:text-gray-500"
+                disabled={isLoading}
+              />
+            </div>
+            {error && <p className="text-red-500 mt-2">{error}</p>}
+            <div className="mt-4 text-center">
+              <button
+                type="submit"
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-500"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Generating...
+                  </>
+                ) : (
+                  'Generate Titles'
+                )}
+              </button>
+            </div>
           </form>
 
-          {state === 'error' && (
-            <p className="mt-4 text-center text-red-400">{error}</p>
-          )}
-
-          {state === 'success' && titles.length > 0 && (
-            <div className="mt-10">
-              <h2 className="text-2xl font-bold text-center text-white">Here are your suggestions:</h2>
-              <div className="mt-6 space-y-4">
-                {titles.map((item, index) => (
-                  <div key={index} className="bg-brand-dark-light p-4 rounded-lg flex justify-between items-center">
-                    <div>
-                      <span className="text-sm font-semibold text-blue-400">{item.style}</span>
-                      <p className="text-white mt-1">{item.title}</p>
-                    </div>
-                    <button onClick={() => handleCopy(item.title)} className="p-2 rounded-md hover:bg-gray-700 transition-colors text-gray-400 hover:text-white">
-                      {copiedTitle === item.title ? <Check size={20} className="text-green-500" /> : <Clipboard size={20} />}
-                    </button>
-                  </div>
+          {titles.length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold text-center text-gray-100">Your AI-Generated Titles</h2>
+              <ul className="mt-6 space-y-4">
+                {titles.map((title, index) => (
+                  <li key={index} className="p-4 bg-white/5 border border-white/10 rounded-lg shadow-sm flex items-center">
+                    <Sparkles className="h-5 w-5 text-blue-500 mr-4 flex-shrink-0" />
+                    <span className="text-gray-200">{title}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   )
-}
-
-export default TitleGeneratorPage; 
+} 
