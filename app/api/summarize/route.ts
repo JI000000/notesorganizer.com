@@ -1,62 +1,69 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { ModelRouter } from '@/lib/ai/model-router';
 
-// 初始化 OpenAI 客户端，指向 OpenRouter
-const openai = new OpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.OPENAI_API_KEY,
-  defaultHeaders: {
-    'HTTP-Referer': 'https://notesorganizer.com',
-    'X-Title': 'NotesOrganizer.com',
-  },
-});
+const MAX_TEXT_LENGTH = 2000; // 统一调整阈值为 2000
+const MIN_TEXT_LENGTH = 50;
 
 export async function POST(request: Request) {
-  // 1. 检查 API Key 是否配置
-  if (!process.env.OPENAI_API_KEY) {
-    console.error('OpenAI API key not configured');
-    return NextResponse.json(
-      { error: 'Service not configured. Please contact support.' },
-      { status: 500 }
-    );
-  }
-
   try {
-    // 2. 解析和验证输入
     const { text } = await request.json();
-    if (!text || typeof text !== 'string' || text.trim().length === 0) {
-      return NextResponse.json({ error: 'Invalid input text' }, { status: 400 });
+
+    if (typeof text !== 'string' || !text) {
+      return NextResponse.json({ error: 'Input text is missing or invalid.' }, { status: 400 });
     }
 
-    // 3. 调用 OpenAI API，通过 OpenRouter
-    const response = await openai.chat.completions.create({
-      model: 'openai/gpt-3.5-turbo', // 使用 OpenRouter 的模型标识符
-      messages: [
+    if (text.length > MAX_TEXT_LENGTH) {
+      return NextResponse.json(
+        { error: `Input text is too long. Maximum is ${MAX_TEXT_LENGTH} characters.` },
+        { status: 413 } // 413 Payload Too Large
+      );
+    }
+
+    if (text.length < MIN_TEXT_LENGTH) {
+      return NextResponse.json(
+        { error: `Input text is too short. Minimum is ${MIN_TEXT_LENGTH} characters.` },
+        { status: 400 }
+      );
+    }
+
+    // 在开发模式下，如果禁用了AI，则返回模拟数据 (现在在验证之后)
+    if (process.env.NODE_ENV === 'development' && process.env.DISABLE_AI_IN_DEV === 'true') {
+      console.log('💡 DEV-MODE: Returning mock data for summarization.')
+      // Simulate a delay to make the UX feel more realistic
+      await new Promise(resolve => setTimeout(resolve, 500))
+      return NextResponse.json({
+        summary:
+          'This is a mock summary returned in development mode. It demonstrates the functionality of the summarizer without incurring API costs. The original text discussed the importance of local development environments and how using mock data can significantly speed up testing cycles and reduce expenses. It also touched upon the trade-offs between different AI models for quality versus cost.',
+      })
+    }
+
+    const result = await ModelRouter.executeTask(
+      'summary-generation',
+      [
         {
           role: 'system',
-          content: 'You are a highly skilled assistant that specializes in summarizing text. Your goal is to provide a concise, clear, and informative summary in a single paragraph.',
+          content: 'You are a world-class expert in text summarization. Your task is to provide a concise, clear, and accurate summary of the given text. Focus on the main ideas and key takeaways.',
         },
         {
           role: 'user',
-          content: `Please summarize the following text: \n\n${text}`,
+          content: `Please summarize the following text:\n\n${text}`,
         },
       ],
-      temperature: 0.5, // 降低随机性，使摘要更稳定
-      max_tokens: 150, // 限制输出长度
-    });
+      {
+        temperature: 0.5,
+        maxTokens: 500,
+        contentLength: text.length,
+      }
+    );
 
-    const summary = response.choices[0]?.message?.content?.trim();
-    
-    // 4. 返回结果
-    if (!summary) {
-      throw new Error('Failed to generate summary.');
+    if (!result.success || !result.content) {
+      throw new Error(result.content || 'Failed to generate summary from the model.');
     }
 
-    return NextResponse.json({ summary });
+    return NextResponse.json({ summary: result.content });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in summarize API:', error);
-    // 避免向客户端暴露过多内部错误细节
-    return NextResponse.json({ error: 'Failed to process your request.' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'An unexpected error occurred.' }, { status: 500 });
   }
 } 

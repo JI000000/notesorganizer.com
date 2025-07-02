@@ -3,46 +3,43 @@
 import { useState } from 'react'
 import { Sparkles } from 'lucide-react'
 
+const MAX_DISPLAY_TITLES = 5
+
 export default function TitleGeneratorPage() {
   const [text, setText] = useState('')
   const [titles, setTitles] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState('')
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value)
+    setError('') // Clear error when user types
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
+    setIsLoading(true)
     setTitles([])
-    
-    if (text.trim().length < 50) {
-      setError('Please enter at least 50 characters to generate titles.')
+    setError('')
+
+    const response = await fetch('/api/generate-title', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text }),
+    })
+
+    setIsLoading(false)
+
+    if (!response.ok) {
+      const result = await response.json()
+      setError(result.error || 'An unexpected error occurred.')
       return
     }
 
-    setIsLoading(true)
-
-    try {
-      const response = await fetch('/api/generate-title', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to generate titles.')
-      }
-
-      const data = await response.json()
-      setTitles(data.titles)
-
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setIsLoading(false)
-    }
+    const result = await response.json()
+    setTitles(result.titles)
   }
 
   return (
@@ -62,7 +59,7 @@ export default function TitleGeneratorPage() {
             <div className="relative">
               <textarea
                 value={text}
-                onChange={(e) => setText(e.target.value)}
+                onChange={handleTextChange}
                 placeholder="Paste your note, article, or any text here (at least 50 characters)..."
                 className="w-full h-48 p-4 border border-white/10 bg-white/5 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 text-gray-200 placeholder:text-gray-500"
                 disabled={isLoading}
@@ -73,7 +70,7 @@ export default function TitleGeneratorPage() {
               <button
                 type="submit"
                 className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-500"
-                disabled={isLoading}
+                disabled={isLoading || !text}
               >
                 {isLoading ? (
                   <>

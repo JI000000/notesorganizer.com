@@ -33,6 +33,7 @@ const Header = () => {
   const navLinks = [
     { href: '/knowledge-hub', label: 'Knowledge Hub' },
     { href: '/tools', label: 'AI Tools' },
+    { href: '/workbench', label: 'AI Workbench' },
   ];
 
   const handleLinkClick = () => {
