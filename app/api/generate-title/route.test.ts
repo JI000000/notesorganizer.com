@@ -28,12 +28,16 @@ describe('API Route: /api/generate-title', () => {
   })
 
   it('should return a list of titles for a valid request', async () => {
-    const mockResponseContent = '1. Title 1\n2. Title 2'
-    mockedExecuteTask.mockResolvedValue({ success: true, content: mockResponseContent })
+    const mockTitles = '1. Title 1\n2. Title 2'
+    mockedExecuteTask.mockResolvedValue({ 
+      success: true, 
+      content: mockTitles,
+      estimatedCost: 0.001
+    })
 
     mockRequest = new Request('http://localhost/api/generate-title', {
       method: 'POST',
-      body: JSON.stringify({ text: 'This is a valid piece of text that is long enough.' }),
+      body: JSON.stringify({ text: 'This is a valid piece of text that is long enough for title generation.' }),
     })
 
     const response = await POST(mockRequest)
@@ -42,6 +46,7 @@ describe('API Route: /api/generate-title', () => {
     expect(response.status).toBe(200)
     expect(data.titles).toEqual(['Title 1', 'Title 2'])
     expect(mockedExecuteTask).toHaveBeenCalledOnce()
+    expect(mockedExecuteTask).toHaveBeenCalledWith('title-generation', expect.any(Array), expect.any(Object))
   })
 
   it('should return 413 if text is too long', async () => {
@@ -118,7 +123,7 @@ describe('API Route: /api/generate-title', () => {
     it('should return mock data', async () => {
       mockRequest = new Request('http://localhost/api/generate-title', {
         method: 'POST',
-        body: JSON.stringify({ text: 'any text' }),
+        body: JSON.stringify({ text: 'This is some text that is long enough for title generation purposes.' }),
       })
 
       const response = await POST(mockRequest)

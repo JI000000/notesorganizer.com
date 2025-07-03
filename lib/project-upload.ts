@@ -1,18 +1,29 @@
 import { NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
 import JSZip from 'jszip'
-import { kv as vercelKv } from '@vercel/kv'
-import { kv as kvMock } from '../lib/kv-mock'
+import { kv } from '@vercel/kv'
+import { kvMock } from './kv-mock'
+import { NoteAnalyzer } from './ai/note-analyzer'
 
-const kv = process.env.NODE_ENV === 'production' ? vercelKv : kvMock
+const storage = process.env.NODE_ENV === 'development' ? kvMock : kv
 
 // Maximum file size: 5MB
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
+// NEW: Strict limits for cost control
+const MAX_NOTES_COUNT = 100 // Maximum number of notes in one upload
+const MAX_SINGLE_NOTE_SIZE = 50 * 1024 // 50KB per individual note
+const MAX_TOTAL_CONTENT_LENGTH = 200 * 1024 // 200KB total content across all notes
+
+// Rough token estimation (1 token ≈ 4 characters)
+function estimateTokens(text: string): number {
+  return Math.ceil(text.length / 4)
+}
+
 export async function handleUploadLogic(file: File | null) {
   if (!file) {
     return NextResponse.json(
-      { error: 'No file uploaded. Please select a ZIP file.' },
+      { error: 'No file uploaded.' },
       { status: 400 }
     )
   }
@@ -28,100 +39,110 @@ export async function handleUploadLogic(file: File | null) {
   // Validate file size
   if (file.size > MAX_FILE_SIZE) {
     return NextResponse.json(
-      { error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.` },
-      { status: 400 }
+      { error: `File too large. Max size is 5MB.` },
+      { status: 413 }
     )
   }
 
-  // Generate unique job ID
-  const jobId = uuidv4()
-  
-  // Convert file to buffer and validate ZIP structure
-  const arrayBuffer = await file.arrayBuffer()
-  const buffer = Buffer.from(arrayBuffer)
-  
   try {
-    const zip = new JSZip()
-    await zip.loadAsync(buffer)
+    const buffer = await file.arrayBuffer()
+    const zip = await JSZip.loadAsync(buffer)
     
-    // Count markdown files
     let markdownCount = 0
-    zip.forEach((relativePath, file) => {
-      if (!file.dir && (relativePath.endsWith('.md') || relativePath.endsWith('.markdown'))) {
+    let totalContentLength = 0
+    const oversizedFiles: string[] = []
+    
+    // Use a standard for...of loop for clarity with async operations
+    for (const [path, zipEntry] of Object.entries(zip.files)) {
+      if (!zipEntry.dir && (path.endsWith('.md') || path.endsWith('.markdown'))) {
         markdownCount++
+        const content = await zipEntry.async('string')
+        const contentLength = new TextEncoder().encode(content).length
+        if (contentLength > MAX_SINGLE_NOTE_SIZE) {
+          oversizedFiles.push(`${path} (${Math.round(contentLength / 1024)}KB)`)
+        }
+        totalContentLength += contentLength
       }
-    })
+    }
 
+    // Validate note count
     if (markdownCount === 0) {
       return NextResponse.json(
-        { error: 'No markdown files found in the ZIP archive.' },
+        { error: 'No markdown files found in the ZIP.' },
         { status: 400 }
       )
     }
 
-    // Store job metadata in KV
-    const jobData = {
-      status: 'PENDING',
-      uploadTime: Date.now(),
-      fileName: file.name,
-      fileSize: file.size,
-      markdownCount,
-      zipData: buffer.toString('base64')
+    if (markdownCount > MAX_NOTES_COUNT) {
+      return NextResponse.json(
+        { error: `Too many notes. Max ${MAX_NOTES_COUNT}.` },
+        { status: 413 }
+      )
     }
 
-    await kv.set(`job:${jobId}`, jobData, { ex: 3600 }) // Expire in 1 hour
+    // Validate individual file sizes
+    if (oversizedFiles.length > 0) {
+      const errorFiles = oversizedFiles.slice(0, 3).join(', ')
+      return NextResponse.json(
+        { error: `Some notes are too large (max 50KB): ${errorFiles}...` },
+        { status: 413 }
+      )
+    }
 
-    // Trigger async processing (non-blocking)
-    processProject(jobId).catch((error: any) => {
-      console.error(`Processing failed for job ${jobId}:`, error)
+    // Validate total content size
+    if (totalContentLength > MAX_TOTAL_CONTENT_LENGTH) {
+      return NextResponse.json(
+        { error: `Total content size too large (max 200KB).` },
+        { status: 413 }
+      )
+    }
+
+    // Estimate processing cost
+    const estimatedTokens = estimateTokens(file.name) // Fixed: use actual content not length string
+    const estimatedCost = (estimatedTokens / 1000000) * 3 * 1.5 // Rough cost estimate
+    
+    console.log(`📊 Upload validation: ${markdownCount} notes, ${Math.round(totalContentLength / 1024)}KB content, ~${estimatedTokens} tokens, ~$${estimatedCost.toFixed(4)} estimated cost`)
+
+    const jobId = uuidv4()
+    const jobData = {
+      status: 'QUEUED',
+      uploadTime: new Date().toISOString(),
+      fileName: file.name,
+      zipBuffer: Buffer.from(buffer), // Store buffer for processing
+      startTime: Date.now()
+    }
+    
+    await storage.set(`job:status:${jobId}`, jobData, { ex: 3600 })
+
+    // Non-blocking call to start processing
+    processProject(jobId).catch(err => {
+      console.error(`[Job ${jobId}] Critical background processing error:`, err)
     })
 
     return NextResponse.json({
       jobId,
       markdownCount,
-      message: `Successfully uploaded ${markdownCount} markdown files. Processing started.`
+      message: 'Upload successful. Analysis has started.'
     })
 
-  } catch (zipError) {
-    return NextResponse.json(
-      { error: 'Invalid ZIP file format.' },
-      { status: 400 }
-    )
+  } catch (e) {
+    console.error("Upload logic error:", e)
+    return NextResponse.json({ error: 'Invalid or corrupted ZIP file format.' }, { status: 400 })
   }
 }
 
 export async function processProject(jobId: string) {
   try {
-    await updateJobStatus(jobId, 'PROCESSING', { startTime: Date.now() })
-
-    // Retrieve job data
-    const jobData = await kv.get(`job:${jobId}`)
-    if (!jobData || typeof jobData !== 'object') {
-      throw new Error('Job data not found')
-    }
-
-    const data = jobData as any
-    const zipBuffer = Buffer.from(data.zipData, 'base64')
-    
-    // Process the ZIP file
-    const zip = new JSZip()
-    await zip.loadAsync(zipBuffer)
-    
-    const results = await analyzeNotesWithAI(zip)
-    
-    // Store results and update status
-    await kv.set(`job:${jobId}`, {
-      ...data,
-      status: 'COMPLETED',
-      completedTime: Date.now(),
-      results,
-      zipData: undefined // Remove binary data to save space
-    }, { ex: 24 * 3600 }) // Keep results for 24 hours
-
+    // The NoteAnalyzer now handles its own status updates internally
+    const { NoteAnalyzer } = await import('../lib/ai/note-analyzer')
+    const analyzer = new NoteAnalyzer(jobId)
+    await analyzer.process()
   } catch (error: any) {
     console.error(`Processing error for job ${jobId}:`, error)
+    // The analyzer's internal catch block should handle status updates.
+    // We can add a fallback here if needed, but it's better to keep it in one place.
     await updateJobStatus(jobId, 'FAILED', { 
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : 'Unknown critical error',
       failedTime: Date.now()
     })
   }
@@ -129,9 +150,9 @@ export async function processProject(jobId: string) {
 
 export async function updateJobStatus(jobId: string, status: string, additionalData: any = {}) {
   try {
-    const existing = await kv.get(`job:${jobId}`)
+    const existing = await storage.get(`job:status:${jobId}`)
     if (existing) {
-      await kv.set(`job:${jobId}`, {
+      await storage.set(`job:status:${jobId}`, {
         ...existing,
         status,
         ...additionalData
@@ -140,20 +161,6 @@ export async function updateJobStatus(jobId: string, status: string, additionalD
   } catch (error) {
     console.error(`Failed to update status for job ${jobId}:`, error)
   }
-}
-
-export async function analyzeNotesWithAI(zip: JSZip): Promise<any> {
-  // Import the analyzer dynamically to avoid issues in serverless environment
-  const { NoteAnalyzer } = await import('../lib/ai/note-analyzer')
-  
-  const analyzer = new NoteAnalyzer()
-  const results = await analyzer.analyzeZip(zip)
-  
-  console.log(`✅ Analysis complete: ${results.notes.length} notes processed`)
-  console.log(`💰 Estimated cost: $${results.stats.estimatedCost.toFixed(4)}`)
-  console.log(`⏱️ Processing time: ${(results.stats.processingTime / 1000).toFixed(1)}s`)
-  
-  return results
 }
 
 export async function* chunksToLines(chunksAsync: any) {

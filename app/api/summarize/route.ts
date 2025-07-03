@@ -42,7 +42,8 @@ export async function POST(request: Request) {
       [
         {
           role: 'system',
-          content: 'You are a world-class expert in text summarization. Your task is to provide a concise, clear, and accurate summary of the given text. Focus on the main ideas and key takeaways.',
+          content:
+            'You are an expert at creating concise, insightful summaries. Create a summary that captures the key points and main ideas of the given text. Keep it clear and engaging.',
         },
         {
           role: 'user',
@@ -50,9 +51,10 @@ export async function POST(request: Request) {
         },
       ],
       {
-        temperature: 0.5,
-        maxTokens: 500,
+        temperature: 0.7,
+        maxTokens: 200, // Reasonable limit for summaries
         contentLength: text.length,
+        isFreeTool: true, // NEW: Mark as free tool for aggressive cost control
       }
     );
 
@@ -60,7 +62,10 @@ export async function POST(request: Request) {
       throw new Error(result.content || 'Failed to generate summary from the model.');
     }
 
-    return NextResponse.json({ summary: result.content });
+    // Log cost for monitoring
+    console.log(`💰 Summary generation cost: $${result.estimatedCost.toFixed(6)}`);
+
+    return NextResponse.json({ summary: result.content.trim() });
 
   } catch (error: any) {
     console.error('Error in summarize API:', error);

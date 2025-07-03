@@ -21,7 +21,11 @@ describe('API Route: /api/summarize', () => {
 
   it('should return a summary for a valid request', async () => {
     const mockSummary = 'This is a mock summary.'
-    mockedExecuteTask.mockResolvedValue({ success: true, content: mockSummary })
+    mockedExecuteTask.mockResolvedValue({ 
+      success: true, 
+      content: mockSummary,
+      estimatedCost: 0.001
+    })
 
     mockRequest = new Request('http://localhost/api/summarize', {
       method: 'POST',
@@ -97,7 +101,7 @@ describe('API Route: /api/summarize', () => {
     it('should return mock data', async () => {
       mockRequest = new Request('http://localhost/api/summarize', {
         method: 'POST',
-        body: JSON.stringify({ text: 'any text' }),
+        body: JSON.stringify({ text: 'This is some text that is long enough for summarization purposes.' }),
       })
 
       const response = await POST(mockRequest)

@@ -71,40 +71,43 @@ export type TaskType =
 
 export class ModelRouter {
   
-  // Select the best model for a given task
+  // Select the best model for a given task with AGGRESSIVE cost optimization
   static selectModel(taskType: TaskType, contentLength: number = 1000): string {
     switch (taskType) {
       case 'note-analysis':
-      case 'knowledge-graph':
-      case 'health-report':
-        // Complex analytical tasks: Use Claude 3.5 Sonnet for best quality
+        // For workbench: Use Claude 3.5 Sonnet ONLY for complex analysis
+        // But limit to reasonable size chunks
+        if (contentLength > 5000) {
+          return MODEL_CONFIGS['gpt-4o'].name // Cheaper alternative for large content
+        }
         return MODEL_CONFIGS['claude-3-5-sonnet'].name
       
-      case 'summary-generation':
-        // Moderate complexity: Use GPT-4o for good balance
+      case 'knowledge-graph':
+      case 'health-report':
+        // Use efficient GPT-4o for graph generation (good balance of quality/cost)
         return MODEL_CONFIGS['gpt-4o'].name
         
-      case 'link-suggestion':
+      case 'summary-generation':
+        // FREE TOOLS: Use cheapest model (Haiku)
+        return MODEL_CONFIGS['claude-3-haiku'].name
+        
       case 'title-generation':
-        // Simple connection tasks: Use cheaper model
-        return MODEL_CONFIGS['gpt-3.5-turbo'].name
+        // FREE TOOLS: Use cheapest model (Haiku) - still great for titles
+        return MODEL_CONFIGS['claude-3-haiku'].name
       
+      case 'link-suggestion':
       case 'topic-extraction':
       case 'simple-classification':
-        // Simple tasks: Use fast, cost-effective models
-        if (contentLength < 2000) {
-          return MODEL_CONFIGS['claude-3-haiku'].name
-        } else {
-          return MODEL_CONFIGS['gpt-3.5-turbo'].name
-        }
+        // Always use cheapest for these simple tasks
+        return MODEL_CONFIGS['claude-3-haiku'].name
       
       default:
-        // Default to GPT-4o for unknown tasks
-        return MODEL_CONFIGS['gpt-4o'].name
+        // Default to cost-effective option
+        return MODEL_CONFIGS['claude-3-haiku'].name
     }
   }
 
-  // Execute an AI request with automatic model selection
+  // Execute an AI request with automatic model selection and STRICT token limits
   static async executeTask(
     taskType: TaskType,
     messages: any[],
@@ -113,23 +116,32 @@ export class ModelRouter {
       maxTokens?: number
       contentLength?: number
       forceModel?: string
+      isFreeTool?: boolean  // NEW: Flag for free tools
     } = {}
   ): Promise<{
     success: boolean
     content: string | null | undefined
     model: string
     usage: any
+    estimatedCost: number
   }> {
     const {
       temperature = 0.7,
       maxTokens = 4000,
       contentLength = 1000,
-      forceModel
+      forceModel,
+      isFreeTool = false
     } = options
+
+    // AGGRESSIVE token limiting for free tools
+    let adjustedMaxTokens = maxTokens
+    if (isFreeTool) {
+      adjustedMaxTokens = Math.min(maxTokens, 150) // Strict limit for free tools
+    }
 
     const selectedModel = forceModel || this.selectModel(taskType, contentLength)
     
-    console.log(`🤖 ModelRouter: Using ${selectedModel} for ${taskType}`)
+    console.log(`🤖 ModelRouter: Using ${selectedModel} for ${taskType} (free: ${isFreeTool})`)
 
     try {
       const client = getOpenAIClient()
@@ -137,30 +149,48 @@ export class ModelRouter {
         model: selectedModel,
         messages,
         temperature,
-        max_tokens: maxTokens,
+        max_tokens: adjustedMaxTokens,
       })
+
+      const estimatedCost = this.calculateActualCost(selectedModel, response.usage)
 
       return {
         success: true,
         content: response.choices[0]?.message?.content,
         model: selectedModel,
-        usage: response.usage
+        usage: response.usage,
+        estimatedCost
       }
 
     } catch (error) {
       console.error(`❌ ModelRouter: Failed with ${selectedModel}:`, error)
       
-      // Fallback to a simpler model if the primary model fails
-      if (!forceModel && selectedModel !== MODEL_CONFIGS['gpt-3.5-turbo'].name) {
-        console.log('🔄 ModelRouter: Attempting fallback to GPT-3.5 Turbo')
+      // Fallback to cheapest model if the primary model fails
+      if (!forceModel && selectedModel !== MODEL_CONFIGS['claude-3-haiku'].name) {
+        console.log('🔄 ModelRouter: Attempting fallback to Claude Haiku (cheapest)')
         return this.executeTask(taskType, messages, {
           ...options,
-          forceModel: MODEL_CONFIGS['gpt-3.5-turbo'].name
+          forceModel: MODEL_CONFIGS['claude-3-haiku'].name
         })
       }
 
       throw error
     }
+  }
+
+  // Calculate actual cost from usage data
+  static calculateActualCost(modelName: string, usage: any): number {
+    const modelKey = Object.keys(MODEL_CONFIGS).find(key => 
+      MODEL_CONFIGS[key].name === modelName
+    )
+    
+    if (!modelKey || !usage) return 0
+
+    const config = MODEL_CONFIGS[modelKey]
+    const inputCost = (usage.prompt_tokens / 1000000) * config.costPer1MTokens.input
+    const outputCost = (usage.completion_tokens / 1000000) * config.costPer1MTokens.output
+    
+    return inputCost + outputCost
   }
 
   // Get cost estimate for a task

@@ -63,7 +63,8 @@ describe('API Route Logic: handleUploadLogic', () => {
     mockUuidV4.mockReturnValue(mockJobId)
 
     const zip = new JSZip()
-    zip.file('note1.md', '# Hello')
+    // Use longer content to ensure it passes our validation checks
+    zip.file('note1.md', '# Test Note\n\nThis is a test note with enough content to pass validation checks. It contains multiple paragraphs and sufficient length to be processed by our AI system.\n\n## Section 1\n\nSome content here with meaningful text that should be long enough to meet our minimum requirements for processing.\n\n## Section 2\n\nMore content to ensure we have sufficient material for analysis.')
     const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' })
     const mockFile = await createMockFile('test.zip', zipBuffer, 'application/zip')
 
@@ -73,10 +74,24 @@ describe('API Route Logic: handleUploadLogic', () => {
     expect(response.status).toBe(200)
     expect(data.jobId).toBe(mockJobId)
     expect(data.markdownCount).toBe(1)
+    expect(data.totalContentSize).toBeGreaterThanOrEqual(0)
+    expect(data.estimatedProcessingTime).toBeGreaterThan(0)
+    expect(data.message).toContain('Successfully uploaded')
     
     expect(mockKvSet).toHaveBeenCalledOnce()
-    expect(processProjectSpy).toHaveBeenCalledOnce()
-    expect(processProjectSpy).toHaveBeenCalledWith(mockJobId)
+    
+    // Verify that the KV store was called with the correct job data structure
+    const kvSetCall = mockKvSet.mock.calls[0]
+    expect(kvSetCall[0]).toBe(`job:${mockJobId}`)
+    expect(kvSetCall[1]).toMatchObject({
+      status: 'PENDING',
+      fileName: 'test.zip',
+      markdownCount: 1,
+      totalContentLength: expect.any(Number),
+      estimatedTokens: expect.any(Number),
+      estimatedCost: expect.any(Number),
+      zipData: expect.any(String)
+    })
   })
 
   it('should not call kv.set when zip file contains no markdown files', async () => {

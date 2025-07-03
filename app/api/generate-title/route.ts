@@ -55,14 +55,17 @@ export async function POST(request: Request) {
       ],
       {
         temperature: 0.7,
-        maxTokens: 200,
+        maxTokens: 150,
         contentLength: text.length,
+        isFreeTool: true,
       }
     )
 
     if (!result.success || !result.content) {
       throw new Error(result.content || 'Failed to generate titles from the model.')
     }
+    
+    console.log(`💰 Title generation cost: $${result.estimatedCost.toFixed(6)}`)
     
     const titles = result.content
       .split('\n')

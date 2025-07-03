@@ -64,7 +64,7 @@
 
 # 03: Workflow, Standards, and Best Practices
 
-This document serves as the operational handbook for the `notesorganizer.com` / `KortexAI` team. It codifies the processes and standards we've developed to ensure efficient, high-quality execution.
+This document serves as the operational handbook for the `notesorganizer.com` project. It codifies the processes and standards we've developed to ensure efficient, high-quality execution.
 
 ## 1. Our Golden Workflow
 
@@ -80,7 +80,7 @@ This cycle allows us to move from idea to implementation with maximum velocity.
 
 ## 2. Technical & Design Standards
 
-- **Core Tech Stack**: Next.js, Tailwind CSS, MDX, Vercel, Cloudflare.
+- **Core Tech Stack**: Next.js, Tailwind CSS, MDX, Vercel.
 - **AI API Standard**: **OpenRouter.ai** is the exclusive gateway for all AI-powered features.
 - **Design Language**: A clean, modern, "glassmorphism" style built on a dark theme. The goal is consistency across all user-facing components.
 - **Content Strategy**: A dual approach of:
@@ -90,21 +90,21 @@ This cycle allows us to move from idea to implementation with maximum velocity.
     - **Environment Variables**: All sensitive keys (like API keys) must be stored as environment variables and accessed via `.env.local` for local development, never hard-coded.
     - **Component Reusability**: Strive to create shared, reusable components (e.g., layouts) to maintain consistency and reduce code duplication.
 
-## 3. The Art of Prompting: Effective Collaboration with an AI Partner
+## 3. 人机协同：如何与你的AI联合创始人高效对话 (The Dialogue: High-Efficiency Prompts for Your AI Co-founder)
 
-The quality of our output is directly proportional to the quality of our input. Follow these principles for best results.
+This is our collaboration playbook. To ensure the AI co-founder can deliver the best results, use these optimized prompt templates.
 
-- **Principle 1: Assign a Role and Context**
-  - **Why**: It helps the AI understand the *intent* behind a request, activating the most relevant knowledge and skills.
-  - **Example**: `As our SEO expert, analyze this blog post and suggest 5 improvements.` is far more effective than `Improve this blog post.`
+-   **【战略规划指令 | Strategic Planning】**
+    -   `"Boss, let's start [quarterly/monthly] strategic planning. As our [all-in-one role], analyze the following [data/market report/user feedback] and create the next phase's [product/market/tech] strategy. The goal is [specific target, e.g., increase user retention by 20%]. Please provide at least three alternative plans with their pros and cons."`
 
-- **Principle 2: Be Specific and Actionable**
-  - **Why**: Vague requests lead to generic outputs. Concrete instructions lead to precise results.
-  - **Example**: Instead of `Fix the bug on the tools page`, use `When I submit text on the summarizer page, I get a 500 error. The console shows 'API key is invalid'. Please investigate the serverless function.`
+-   **【新功能开发指令 | New Feature Development】**
+    -   `"Boss, we need to build a new feature: '[feature name]'. Its core value is [one-sentence description]. Design the full-stack architecture for me, including [API endpoints, database schema, key algorithms]. Then, start implementing it step-by-step, beginning with [the most critical file]."`
 
-- **Principle 3: Provide "Design Blueprints" and Key Information**
-  - **Why**: For creative or structured tasks (like UI or content), a clear template is essential. It minimizes ambiguity and rework.
-  - **Example**: To create a new UI section, provide a textual wireframe: `"Create a 3-column grid. Each column is a card with: 1. An icon (use Heroicons). 2. A title (H3). 3. A short paragraph of text."`
+-   **【精准调试指令 | Precision Debugging】(You have mastered this one)**
+    -   `"Boss, the app has crashed. When I [performed an action], the frontend showed [description from screenshot], and the console/terminal logs are as follows [paste logs]. As our principal engineer, diagnose the root cause and fix it immediately."`
 
-- **Principle 4: Embrace the Feedback Loop**
-  - **Why**: The AI is a powerful tool, but not a mind-reader. Your feedback is the most critical part of the process for achieving a high-quality, polished result. Treat the first output as a "draft" to be refined. 
+-   **【代码优化指令 | Code Optimization】**
+    -   `"Boss, review [filename or directory]. This code works, but I believe it can be optimized for [performance/readability/cost]. Propose a refactoring plan, explain the reasoning, and then execute it."`
+
+-   **【内容创作指令 | Content Creation】**
+    -   `"Boss, we need a blog post on '[topic]'. The target keyword is '[long-tail keyword]'. As our in-house [PKM expert/tech blogger], write a deep, professional, and valuable article for our readers."` 

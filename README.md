@@ -84,6 +84,12 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - `public/`: Static assets like images and fonts.
 - `styles/`: Global CSS styles.
 
+## 🚧 Development Log
+
+- **Sprint 3 (July 2024):** The AI Workbench.
+  - Implemented the core feature for users to upload, analyze, and visualize their entire note collections.
+  - Read the full retrospective and technical deep-dive in [docs/SPRINT3_SUMMARY.md](./docs/SPRINT3_SUMMARY.md).
+
 ## Project Management
 
 Strategic planning, content calendar, and user research are managed in our shared Notion workspace.

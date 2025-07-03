@@ -1,7 +1,7 @@
 import JSZip from 'jszip'
 import { ModelRouter, TaskType, estimateTokens } from './model-router'
-import { kv as vercelKv } from '@vercel/kv'
-import { kv as kvMock } from '@/lib/kv-mock'
+import { kv } from '@vercel/kv'
+import { kvMock } from '../kv-mock'
 
 // Types for our analysis results
 export interface NoteAnalysis {
@@ -81,85 +81,92 @@ export interface HealthReport {
   }>
 }
 
-const storage = process.env.NODE_ENV === 'development' ? kvMock : vercelKv
+// Select storage based on environment
+const storage = process.env.NODE_ENV === 'development' ? kvMock : kv
 const MAX_TOTAL_CHARS = 150000 // 第二道防线：限制所有文件的总字符数
+const JOB_STATUS_PREFIX = "job:status:";
+const JOB_RESULTS_PREFIX = "job:results:";
+
+export type JobStatus = "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 
 export class NoteAnalyzer {
+  private jobId: string
   private notes: Map<string, { fileName: string; content: string }> = new Map()
   private analysisResults: Map<string, NoteAnalysis> = new Map()
   private isDevelopment = process.env.NODE_ENV === 'development'
   private modelRouter: ModelRouter
 
-  constructor() {
+  constructor(jobId: string) {
+    this.jobId = jobId
     this.modelRouter = new ModelRouter()
   }
 
-  async analyzeZip(zip: JSZip): Promise<{
-    notes: NoteAnalysis[]
-    knowledgeGraph: KnowledgeGraph
-    healthReport: HealthReport
-    stats: {
-      totalNotes: number
-      totalTokensProcessed: number
-      estimatedCost: number
-      processingTime: number
-    }
-  }> {
-    const startTime = Date.now()
-    let totalTokens = 0
-    let estimatedCost = 0
-
-    console.log('📚 Starting comprehensive note analysis...')
-
-    // Step 1: Extract all markdown files
-    await this.extractNotes(zip)
-    console.log(`📄 Extracted ${this.notes.size} notes`)
-
-    // 在开发模式下，返回模拟数据以节约成本
-    if (this.isDevelopment && process.env.DISABLE_AI_IN_DEV === 'true') {
-      console.log('🚧 Development mode: Using mock data to save costs')
-      return this.generateMockResults()
-    }
-
-    // Step 2: Analyze each note individually
-    for (const [id, note] of this.notes) {
-      console.log(`🔍 Analyzing note: ${note.fileName}`)
-      
-      const analysis = await this.analyzeIndividualNote(id, note.fileName, note.content)
-      this.analysisResults.set(id, analysis)
-      
-      totalTokens += estimateTokens(note.content + (analysis.enhancedContent || ''))
-    }
-
-    // Step 3: Generate link suggestions between notes
-    console.log('🔗 Generating connection suggestions...')
-    await this.generateLinkSuggestions()
-
-    // Step 4: Build knowledge graph
-    console.log('🕸️ Building knowledge graph...')
-    const knowledgeGraph = await this.buildKnowledgeGraph()
-
-    // Step 5: Generate health report
-    console.log('📊 Generating health insights...')
-    const healthReport = await this.generateHealthReport(knowledgeGraph)
-
-    const processingTime = Date.now() - startTime
-    estimatedCost = ModelRouter.estimateCost('note-analysis', totalTokens, totalTokens * 0.3)
-
-    console.log(`✅ Analysis complete: ${this.notes.size} notes processed`)
-    console.log(`💰 Estimated cost: $${estimatedCost.toFixed(4)}`)
-    console.log(`⏱️ Processing time: ${(processingTime / 1000).toFixed(1)}s`)
-
-    return {
-      notes: Array.from(this.analysisResults.values()),
-      knowledgeGraph,
-      healthReport,
-      stats: {
-        totalNotes: this.notes.size,
-        totalTokensProcessed: totalTokens,
-        estimatedCost,
-        processingTime
+  async process() {
+    try {
+      // This is the main entry point called by the background job
+      const jobData = await storage.get(`${JOB_STATUS_PREFIX}${this.jobId}`);
+      if (!jobData || !jobData.zipBuffer) {
+        throw new Error("Job data or zip buffer not found.");
       }
+      
+      const zip = await JSZip.loadAsync(Buffer.from(jobData.zipBuffer.data));
+      
+      await this.updateStatus("PROCESSING", { currentStep: "Extracting notes..." });
+      await this.extractNotes(zip);
+
+      // In development, you might want to use mock data to save costs
+      if (this.isDevelopment && process.env.DISABLE_AI_IN_DEV === 'true') {
+        console.log('🚧 Development mode: Using mock data to save costs');
+        const mockResults = this.generateMockResults();
+        await storage.set(`${JOB_RESULTS_PREFIX}${this.jobId}`, mockResults, { ex: 3600 });
+        await this.updateStatus("COMPLETED", { results: mockResults });
+        return;
+      }
+
+      let totalTokens = 0
+      let noteCounter = 0
+
+      for (const [id, note] of this.notes.entries()) {
+        noteCounter++;
+        await this.updateStatus("PROCESSING", {
+          currentStep: `Analyzing note ${noteCounter} of ${this.notes.size}: ${note.fileName}`,
+          stats: { processedNotes: noteCounter -1, totalNotes: this.notes.size }
+        });
+        const analysis = await this.analyzeIndividualNote(id, note.fileName, note.content);
+        this.analysisResults.set(id, analysis);
+        totalTokens += estimateTokens(note.content + (analysis.enhancedContent || ''));
+      }
+
+      await this.updateStatus("PROCESSING", { currentStep: "Generating connection suggestions..." });
+      await this.generateLinkSuggestions();
+
+      await this.updateStatus("PROCESSING", { currentStep: "Building knowledge graph..." });
+      const knowledgeGraph = await this.buildKnowledgeGraph();
+
+      await this.updateStatus("PROCESSING", { currentStep: "Generating health insights..." });
+      const healthReport = await this.generateHealthReport(knowledgeGraph);
+
+      const processingTime = Date.now() - jobData.startTime;
+      const estimatedCost = ModelRouter.estimateCost('note-analysis', totalTokens, totalTokens * 0.3);
+
+      const finalResults = {
+        notes: Array.from(this.analysisResults.values()),
+        knowledgeGraph,
+        healthReport,
+        stats: {
+          totalNotes: this.notes.size,
+          totalTokensProcessed: totalTokens,
+          estimatedCost,
+          processingTime,
+        },
+      };
+
+      await storage.set(`${JOB_RESULTS_PREFIX}${this.jobId}`, finalResults, { ex: 3600 });
+      await this.updateStatus("COMPLETED", { results: finalResults });
+
+    } catch (error) {
+      console.error(`[Job ${this.jobId}] FAILED:`, error);
+      await this.updateStatus("FAILED", { error: (error as Error).message });
     }
   }
 
@@ -574,19 +581,14 @@ Respond with ONLY valid JSON, no markdown formatting:
     return filePath.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()
   }
 
-  private async updateProgress(
-    jobId: string,
-    message: string,
-    progress: number,
-    isError: boolean = false
-  ) {
-    console.log(`[Job ${jobId}] Progress: ${progress}% - ${message}`)
-    const status = {
-      status: isError ? 'failed' : 'processing',
-      progress,
-      message,
-      updatedAt: new Date().toISOString(),
-    }
-    await storage.set(`job:${jobId}`, status, { ex: 3600 }) // 1 hour expiry
+  private async updateStatus(status: JobStatus, data: any) {
+    const jobData = (await storage.get(`${JOB_STATUS_PREFIX}${this.jobId}`)) || {};
+    const newStatus = {
+      ...jobData,
+      status,
+      lastUpdated: new Date().toISOString(),
+      ...data,
+    };
+    await storage.set(`${JOB_STATUS_PREFIX}${this.jobId}`, newStatus, { ex: 3600 });
   }
 } 

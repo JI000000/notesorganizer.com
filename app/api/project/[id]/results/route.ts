@@ -1,62 +1,48 @@
 import { NextResponse } from 'next/server'
-import { kv as vercelKv } from '@vercel/kv'
-import { kv as kvMock } from '../../../../../lib/kv-mock'
+import { kv } from '@vercel/kv'
+import { kvMock } from '../../../../../lib/kv-mock'
 import JSZip from 'jszip'
 
-const kv = process.env.NODE_ENV === 'production' ? vercelKv : kvMock
+const storage = process.env.NODE_ENV === 'development' ? kvMock : kv
+
+const JOB_STATUS_PREFIX = "job:status:"
+const JOB_RESULTS_PREFIX = "job:results:"
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const { id } = params
+
+  if (!id) {
+    return NextResponse.json({ error: 'Job ID is required.' }, { status: 400 })
+  }
+
   try {
-    const { id } = params
-
-    if (!id || typeof id !== 'string') {
+    const jobData = await storage.get(`${JOB_STATUS_PREFIX}${id}`)
+    
+    if (!jobData || (jobData as any).status !== 'COMPLETED') {
       return NextResponse.json(
-        { error: 'Invalid job ID' },
-        { status: 400 }
-      )
-    }
-
-    // Retrieve job data from KV
-    const jobData = await kv.get(`job:${id}`)
-
-    if (!jobData) {
-      return NextResponse.json(
-        { error: 'Job not found. It may have expired.' },
+        { status: 'PENDING', message: 'Job not found or not completed.' },
         { status: 404 }
       )
     }
+    
+    const results = await storage.get(`${JOB_RESULTS_PREFIX}${id}`)
 
-    const data = jobData as any
-
-    // Check if job is completed
-    if (data.status !== 'COMPLETED') {
-      return NextResponse.json(
-        { error: `Job is not completed. Current status: ${data.status}` },
-        { status: 400 }
-      )
+    if (!results) {
+        return NextResponse.json(
+            { status: 'NOT_FOUND', message: 'Results not found.' },
+            { status: 404 }
+        )
     }
 
-    // Return the analysis results
-    const response = {
-      jobId: id,
-      status: data.status,
-      fileName: data.fileName,
-      markdownCount: data.markdownCount,
-      uploadTime: data.uploadTime,
-      completedTime: data.completedTime,
-      processingDuration: data.completedTime - data.startTime,
-      results: data.results
-    }
-
-    return NextResponse.json(response)
+    return NextResponse.json(results)
 
   } catch (error) {
-    console.error('Results API error:', error)
+    console.error(`[Results API Error] Job ${id}:`, error)
     return NextResponse.json(
-      { error: 'Failed to retrieve results' },
+      { error: 'An internal error occurred while fetching results.' },
       { status: 500 }
     )
   }
@@ -77,7 +63,7 @@ export async function POST(
       )
     }
 
-    const jobData = await kv.get(`job:${id}`)
+    const jobData = await storage.get(`job:${id}`)
 
     if (!jobData) {
       return NextResponse.json(

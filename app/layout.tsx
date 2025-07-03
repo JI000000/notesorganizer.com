@@ -27,15 +27,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9751155071098091"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        <meta name="google-adsense-account" content="ca-pub-9751155071098091" />
       </head>
       <body className={`${inter.className} bg-slate-900 text-gray-200`}>
-        <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
+        {process.env.NODE_ENV === "production" && (
+          <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
+        )}
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-grow">

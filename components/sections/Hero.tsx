@@ -21,12 +21,20 @@ const HeroSection = () => {
         <p className="mt-6 text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
           A definitive resource hub with systems, guides, and AI-powered tools to transform your scattered notes into a structured, interconnected knowledge base.
         </p>
-        <Link 
-          href="/knowledge-hub/pkm-ultimate-guide" 
-          className="mt-10 inline-block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-md hover:bg-blue-500 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-blue-500/20"
-        >
-          Start with the Ultimate PKM Guide →
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="/workbench"
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg text-center"
+          >
+            Try AI Workbench Free
+          </a>
+          <a
+            href="/knowledge-hub/pkm-ultimate-guide"
+            className="px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl transition-all duration-200 border border-gray-600 hover:border-gray-500 text-center"
+          >
+            Read the Guide
+          </a>
+        </div>
       </div>
     </section>
   );
