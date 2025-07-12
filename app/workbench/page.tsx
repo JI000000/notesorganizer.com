@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import UploadZone from '@/components/workbench/UploadZone'
 import ProcessingDashboard from '@/components/workbench/ProcessingDashboard'
 import ResultsDashboard from '@/components/workbench/ResultsDashboard'
+import WorkbenchGuide from '@/components/workbench/WorkbenchGuide'
+import { HelpCircle } from 'lucide-react'
 
 interface ProcessingStatus {
   status: 'idle' | 'uploading' | 'queued' | 'processing' | 'completed' | 'error'
@@ -33,6 +35,7 @@ export default function WorkbenchPage() {
     message: 'Ready to transform your notes'
   })
   const [results, setResults] = useState<Results | null>(null)
+  const [showGuide, setShowGuide] = useState(false)
   const pollIntervalRef = useRef<NodeJS.Timeout>()
   const startTimeRef = useRef<number>()
   const router = useRouter()
@@ -177,7 +180,7 @@ export default function WorkbenchPage() {
     } else {
       clearSavedStatus();
     }
-  }, [status]);
+  }, [status, clearSavedStatus]);
 
   useEffect(() => {
     // This effect handles clearing the polling interval when the component unmounts.
@@ -269,6 +272,17 @@ export default function WorkbenchPage() {
   return (
     <div className="container mx-auto p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
+        {/* Help Button */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => setShowGuide(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+          >
+            <HelpCircle className="w-4 h-4" />
+            How to Use AI Workbench
+          </button>
+        </div>
+
         {(status.status === 'idle' || status.status === 'error') && (
           <UploadZone
             onFileSelect={uploadFile}
@@ -289,6 +303,11 @@ export default function WorkbenchPage() {
             onDownload={downloadResults}
             fileName={status.fileName || 'your_notes'}
           />
+        )}
+
+        {/* Guide Modal */}
+        {showGuide && (
+          <WorkbenchGuide onClose={() => setShowGuide(false)} />
         )}
       </div>
     </div>

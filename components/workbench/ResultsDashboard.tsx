@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { Search, Filter, Download, RotateCcw, Network, FileText, BarChart3, Eye, ChevronDown, Star, TrendingUp, Users, Zap } from 'lucide-react'
+import KnowledgeGraph from './KnowledgeGraph'
 
 interface Note {
   id: string
@@ -319,18 +320,52 @@ export default function ResultsDashboard({ results, onDownload, onReset, fileNam
 
         {activeTab === 'graph' && (
           <div className="space-y-6">
-            {/* Graph Visualization Placeholder */}
+            {/* Interactive Knowledge Graph */}
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-700">
               <h3 className="text-xl font-semibold mb-6 text-white flex items-center">
                 <Network className="w-6 h-6 mr-3 text-purple-400" />
-                Knowledge Graph Overview
+                Interactive Knowledge Graph
               </h3>
-              <div className="bg-gray-900/50 rounded-lg p-8 border border-gray-600 min-h-[400px] flex items-center justify-center">
-                <div className="text-center">
-                  <Network className="w-16 h-16 text-purple-400 mx-auto mb-4" />
-                  <h4 className="text-lg font-semibold text-white mb-2">Interactive Graph Coming Soon</h4>
-                  <p className="text-gray-400">Full interactive knowledge graph visualization will be available in the next update</p>
-                </div>
+              <div className="min-h-[600px]">
+                <KnowledgeGraph 
+                  data={{
+                    notes: results.notes.map(note => ({
+                      id: note.id,
+                      title: note.analysis.title,
+                      category: note.analysis.tags[0] || 'General',
+                      tags: note.analysis.tags,
+                      content: note.analysis.summary,
+                    })),
+                    connections: results.knowledgeGraph.edges.map(edge => ({
+                      source: edge.source,
+                      target: edge.target,
+                      relationship: edge.type,
+                    })),
+                    stats: results.stats,
+                  }}
+                  onNodeClick={(node) => {
+                    const note = results.notes.find(n => n.id === node.id);
+                    if (note) setSelectedNote(note);
+                  }}
+                  onExport={() => {
+                    const graphData = {
+                      nodes: results.knowledgeGraph.nodes,
+                      edges: results.knowledgeGraph.edges,
+                      metadata: {
+                        fileName,
+                        exportedAt: new Date().toISOString(),
+                        stats: results.stats,
+                      }
+                    };
+                    const blob = new Blob([JSON.stringify(graphData, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${fileName}_knowledge_graph.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                />
               </div>
             </div>
 

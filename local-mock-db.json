@@ -1,8 +1,400 @@
 {
-  "job:status:b1897339-252f-47fb-8f97-8d705c12b230": {
+  "job:results:b1897339-252f-47fb-8f97-8d705c12b230": {
+    "value": {
+      "notes": [
+        {
+          "id": "00_constitution_md",
+          "fileName": "00_CONSTITUTION.md",
+          "originalContent": "# Project Constitution & Guiding Principles\n\nThis document outlines the core principles that guide the development of `notesorganizer.com` and the future `KortexAI.app`. Every feature, design choice, and piece of content should be measured against these principles.\n\n## 1. Empower the User, Don't Replace Them\n\nOur tools are designed to augment, not automate, the user's thinking process. AI should be a co-pilot, handling the tedious work of organizing and surfacing information, so the user can focus on the creative work of synthesis and insight generation. The user's mind is always the primary processor.\n\n## 2. Champion Data Sovereignty\n\nA user's knowledge is their most valuable digital asset. We will always prioritize local-first solutions and give users complete ownership and control over their data. Our flagship product will work on top of the user's local files, not by locking them into a proprietary cloud.\n\n## 3. Simplicity through Power\n\nTrue sophistication is making the complex feel simple. Our UI/UX philosophy is to hide complexity and provide a clean, intuitive interface that delivers powerful results without overwhelming the user.\n\n## 4. Build a Community of Thinkers\n\nOur success is not measured in sign-ups, but in the quality of the community we cultivate. We are building for serious thinkers, knowledge workers, and creators. Our content and tools should attract, serve, and connect these individuals.\n\n## 5. Strategic Pragmatism\n\nAs a small team, we must be ruthlessly efficient. We choose technology and workflows that maximize our velocity and minimize our overhead. We build what is necessary, measure its impact, and iterate quickly.",
+          "analysis": {
+            "title": "00 CONSTITUTION",
+            "summary": "This is a mock summary generated for development testing.",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "tags": [
+              "#dev",
+              "#test",
+              "#mock"
+            ],
+            "keyPoints": [
+              "Point 1",
+              "Point 2",
+              "Point 3"
+            ],
+            "emotionalTone": "neutral",
+            "readingTime": 2,
+            "complexity": "medium"
+          },
+          "suggestedLinks": [],
+          "enhancedContent": "# Project Constitution & Guiding Principles\n\nThis document outlines the core principles that guide the development of `notesorganizer.com` and the future `KortexAI.app`. Every feature, design choice, and piece of content should be measured against these principles.\n\n## 1. Empower the User, Don't Replace Them\n\nOur tools are designed to augment, not automate, the user's thinking process. AI should be a co-pilot, handling the tedious work of organizing and surfacing information, so the user can focus on the creative work of synthesis and insight generation. The user's mind is always the primary processor.\n\n## 2. Champion Data Sovereignty\n\nA user's knowledge is their most valuable digital asset. We will always prioritize local-first solutions and give users complete ownership and control over their data. Our flagship product will work on top of the user's local files, not by locking them into a proprietary cloud.\n\n## 3. Simplicity through Power\n\nTrue sophistication is making the complex feel simple. Our UI/UX philosophy is to hide complexity and provide a clean, intuitive interface that delivers powerful results without overwhelming the user.\n\n## 4. Build a Community of Thinkers\n\nOur success is not measured in sign-ups, but in the quality of the community we cultivate. We are building for serious thinkers, knowledge workers, and creators. Our content and tools should attract, serve, and connect these individuals.\n\n## 5. Strategic Pragmatism\n\nAs a small team, we must be ruthlessly efficient. We choose technology and workflows that maximize our velocity and minimize our overhead. We build what is necessary, measure its impact, and iterate quickly."
+        },
+        {
+          "id": "01_architecture_md",
+          "fileName": "01_ARCHITECTURE.md",
+          "originalContent": "# Technical Architecture\n\nThis document details the architecture of `notesorganizer.com`.\n\n## Core Philosophy\n\nThe architecture is designed around the principles of the JAMstack and Serverless computing to achieve maximum performance, security, and scalability with minimal operational overhead.\n\n## Technology Choices\n\n- **Frontend Framework**: **Next.js** is used for its hybrid rendering capabilities.\n  - **Static Site Generation (SSG)**: For the blog, guides, and marketing pages to ensure they are pre-rendered as static HTML for fast load times and optimal SEO.\n  - **Server-Side Rendering (SSR) / Incremental Static Regeneration (ISR)**: Can be used for pages that need more dynamic data.\n  - **Client-Side Rendering (CSR)**: Used within the AI tool interfaces for interactivity.\n- **Styling**: **Tailwind CSS** is used for its utility-first approach, enabling rapid development of a custom, modern UI.\n- **Deployment**: **Vercel** is the chosen platform because of its seamless integration with Next.js, providing automatic builds, global CDN, and serverless function hosting.\n\n## AI API Provider Strategy\n\nA key architectural decision is the use of **OpenRouter.ai** as our exclusive AI API gateway, instead of directly integrating with providers like OpenAI.\n\n- **Rationale**:\n  1.  **Cost-Effectiveness**: OpenRouter provides access to a wide range of models at or below their base cost, significantly reducing our operational expenses for AI features.\n  2.  **Model Flexibility**: It gives us access to hundreds of models from various providers (Google, Anthropic, Mistral, etc.) through a single, unified API. This prevents vendor lock-in and allows us to dynamically choose the best model for a specific task without code changes.\n  3.  **Reliability & Redundancy**: OpenRouter offers automatic failover to other models in case of an outage from a primary provider, increasing the resilience of our AI tools.\n- **Implementation**: All backend serverless functions call the OpenRouter endpoint. The specific model to be used (e.g., `openai/gpt-3.5-turbo`) is specified in the body of the request, making our architecture highly adaptable.\n\n## Data Flow for AI Micro-Tools\n\nThe AI micro-tools (`Summarizer`, `Title Generator`) follow a secure serverless pattern:\n\n1.  **Client (Browser)**: The user interacts with a React component in `app/tools/`.\n2.  **API Request**: On form submission, the client makes a `POST` request to our own backend API endpoint (e.g., `/api/summarize`). **The client never calls the AI provider's API directly.**\n3.  **Serverless Function**: Vercel invokes the corresponding serverless function located in `app/api/`.\n4.  **Secure API Call**: The serverless function, which has secure access to environment variables (e.g., `OPENROUTER_API_KEY`), makes a request to the OpenRouter.ai API.\n5.  **Response**: OpenRouter.ai responds to the serverless function.\n6.  **Client Response**: The serverless function sends the processed data back to the client, which then updates the UI.\n\nThis architecture ensures our API keys are never exposed and allows us to handle pre-processing, post-processing, and error handling on the backend.\n\n## Content Management\n\nContent is managed via a **\"Docs-as-Code\"** approach.\n- All articles are stored as `.md` or `.mdx` files within the `/posts` directory of the GitHub repository.\n- The `lib/posts.ts` file contains utility functions to parse these files, read their frontmatter metadata, and render them as HTML.\n- This approach eliminates the need for an external CMS, reduces costs, and allows content to be version-controlled alongside the code.",
+          "analysis": {
+            "title": "01 ARCHITECTURE",
+            "summary": "This is a mock summary generated for development testing.",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "tags": [
+              "#dev",
+              "#test",
+              "#mock"
+            ],
+            "keyPoints": [
+              "Point 1",
+              "Point 2",
+              "Point 3"
+            ],
+            "emotionalTone": "neutral",
+            "readingTime": 3,
+            "complexity": "medium"
+          },
+          "suggestedLinks": [],
+          "enhancedContent": "# Technical Architecture\n\nThis document details the architecture of `notesorganizer.com`.\n\n## Core Philosophy\n\nThe architecture is designed around the principles of the JAMstack and Serverless computing to achieve maximum performance, security, and scalability with minimal operational overhead.\n\n## Technology Choices\n\n- **Frontend Framework**: **Next.js** is used for its hybrid rendering capabilities.\n  - **Static Site Generation (SSG)**: For the blog, guides, and marketing pages to ensure they are pre-rendered as static HTML for fast load times and optimal SEO.\n  - **Server-Side Rendering (SSR) / Incremental Static Regeneration (ISR)**: Can be used for pages that need more dynamic data.\n  - **Client-Side Rendering (CSR)**: Used within the AI tool interfaces for interactivity.\n- **Styling**: **Tailwind CSS** is used for its utility-first approach, enabling rapid development of a custom, modern UI.\n- **Deployment**: **Vercel** is the chosen platform because of its seamless integration with Next.js, providing automatic builds, global CDN, and serverless function hosting.\n\n## AI API Provider Strategy\n\nA key architectural decision is the use of **OpenRouter.ai** as our exclusive AI API gateway, instead of directly integrating with providers like OpenAI.\n\n- **Rationale**:\n  1.  **Cost-Effectiveness**: OpenRouter provides access to a wide range of models at or below their base cost, significantly reducing our operational expenses for AI features.\n  2.  **Model Flexibility**: It gives us access to hundreds of models from various providers (Google, Anthropic, Mistral, etc.) through a single, unified API. This prevents vendor lock-in and allows us to dynamically choose the best model for a specific task without code changes.\n  3.  **Reliability & Redundancy**: OpenRouter offers automatic failover to other models in case of an outage from a primary provider, increasing the resilience of our AI tools.\n- **Implementation**: All backend serverless functions call the OpenRouter endpoint. The specific model to be used (e.g., `openai/gpt-3.5-turbo`) is specified in the body of the request, making our architecture highly adaptable.\n\n## Data Flow for AI Micro-Tools\n\nThe AI micro-tools (`Summarizer`, `Title Generator`) follow a secure serverless pattern:\n\n1.  **Client (Browser)**: The user interacts with a React component in `app/tools/`.\n2.  **API Request**: On form submission, the client makes a `POST` request to our own backend API endpoint (e.g., `/api/summarize`). **The client never calls the AI provider's API directly.**\n3.  **Serverless Function**: Vercel invokes the corresponding serverless function located in `app/api/`.\n4.  **Secure API Call**: The serverless function, which has secure access to environment variables (e.g., `OPENROUTER_API_KEY`), makes a request to the OpenRouter.ai API.\n5.  **Response**: OpenRouter.ai responds to the serverless function.\n6.  **Client Response**: The serverless function sends the processed data back to the client, which then updates the UI.\n\nThis architecture ensures our API keys are never exposed and allows us to handle pre-processing, post-processing, and error handling on the backend.\n\n## Content Management\n\nContent is managed via a **\"Docs-as-Code\"** approach.\n- All articles are stored as `.md` or `.mdx` files within the `/posts` directory of the GitHub repository.\n- The `lib/posts.ts` file contains utility functions to parse these files, read their frontmatter metadata, and render them as HTML.\n- This approach eliminates the need for an external CMS, reduces costs, and allows content to be version-controlled alongside the code."
+        },
+        {
+          "id": "02_deployment_md",
+          "fileName": "02_DEPLOYMENT.md",
+          "originalContent": "# Deployment Guide\n\nThis project is deployed on **Vercel**.\n\n## Process\n\nDeployment is automated through Vercel's Git integration.\n\n1.  **Repository Connection**: The GitHub repository for this project is connected to a Vercel project.\n2.  **Branch Trigger**: A push or merge to the `main` branch automatically triggers a new deployment on Vercel.\n3.  **Build**: Vercel uses the `npm run build` command (defined in `package.json`) to build the Next.js application.\n4.  **Deploy**: After a successful build, Vercel deploys the application to production and assigns it to the `notesorganizer.com` domain. The previous deployment is kept available for instant rollbacks if needed.\n\n## Environment Variables\n\nAll sensitive keys (Supabase keys, AI API keys) must be configured in the Vercel project's environment variable settings. They should not be hardcoded in the repository.\n\n- `NEXT_PUBLIC_SUPABASE_URL`\n- `NEXT_PUBLIC_SUPABASE_ANON_KEY`\n- `OPENAI_API_KEY` (or other AI provider keys)\n\n## Domains\n\nThe `notesorganizer.com` domain is assigned as the production domain in Vercel.\nThe `notesorganizer.app` domain is configured at the DNS provider (Cloudflare) to have a permanent (301) redirect to `https://www.notesorganizer.com`.",
+          "analysis": {
+            "title": "02 DEPLOYMENT",
+            "summary": "This is a mock summary generated for development testing.",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "tags": [
+              "#dev",
+              "#test",
+              "#mock"
+            ],
+            "keyPoints": [
+              "Point 1",
+              "Point 2",
+              "Point 3"
+            ],
+            "emotionalTone": "neutral",
+            "readingTime": 1,
+            "complexity": "medium"
+          },
+          "suggestedLinks": [],
+          "enhancedContent": "# Deployment Guide\n\nThis project is deployed on **Vercel**.\n\n## Process\n\nDeployment is automated through Vercel's Git integration.\n\n1.  **Repository Connection**: The GitHub repository for this project is connected to a Vercel project.\n2.  **Branch Trigger**: A push or merge to the `main` branch automatically triggers a new deployment on Vercel.\n3.  **Build**: Vercel uses the `npm run build` command (defined in `package.json`) to build the Next.js application.\n4.  **Deploy**: After a successful build, Vercel deploys the application to production and assigns it to the `notesorganizer.com` domain. The previous deployment is kept available for instant rollbacks if needed.\n\n## Environment Variables\n\nAll sensitive keys (Supabase keys, AI API keys) must be configured in the Vercel project's environment variable settings. They should not be hardcoded in the repository.\n\n- `NEXT_PUBLIC_SUPABASE_URL`\n- `NEXT_PUBLIC_SUPABASE_ANON_KEY`\n- `OPENAI_API_KEY` (or other AI provider keys)\n\n## Domains\n\nThe `notesorganizer.com` domain is assigned as the production domain in Vercel.\nThe `notesorganizer.app` domain is configured at the DNS provider (Cloudflare) to have a permanent (301) redirect to `https://www.notesorganizer.com`."
+        },
+        {
+          "id": "03_workflow_and_standards_md",
+          "fileName": "03_WORKFLOW_AND_STANDARDS.md",
+          "originalContent": "# NotesOrganizer 知识管理与流程标准（复盘版）\n\n---\n\n## 阶段性复盘与知识沉淀（2024-07-03）\n\n### 1. 代码现状与架构检视\n- 前端：Next.js 14 + App Router，分主站内容、工具页、工作台三大模块，UI美观大气。\n- 后端：API路由分免费工具、项目核心、等待名单等。\n- AI能力：lib/ai/model-router.ts实现智能模型路由，自动切换与成本优化。\n- 分析引擎：lib/ai/note-analyzer.ts实现完整笔记AI分析流程，支持mock数据。\n- KV存储：支持Vercel KV与本地mock，开发/生产环境无缝切换。\n- 测试：API端点均有Vitest单元测试，mock依赖，保证健壮性。\n- 文档：docs/目录下有架构、部署、流程等文档，STAGE2_SUMMARY.md有阶段性总结。\n\n### 2. 主要决策与执行回顾\n- 三阶段战略：Lighthouse→Workbench→Observatory。\n- 产品定位：专注\"知识库整理\"垂直场景，强调智能结构化、隐私友好、极致体验。\n- 技术原则：一次性做对，高质量、快交付、低成本、可扩展。\n- AI模型路由：OpenRouter聚合多模型，自动选择最优模型。\n- API设计：所有AI相关API均有mock模式，开发环境不消耗额度。\n- 输入限制：免费工具2000字上限，防止滥用。\n- 状态管理：工作台任务全流程状态可追踪，支持断点恢复。\n\n### 3. 设计与实现对比分析\n| 设计目标                | 实现现状                | 差距与原因           |\n|-------------------------|-------------------------|----------------------|\n| 免费工具输入限制提示    | 已实现（最新修复）      | mock模式下曾失效，已修正 |\n| 工具页UI美观分栏        | 已实现                  | 一度回归为上下，已恢复 |\n| 工作台状态持久化        | 已实现                  | 早期刷新丢失，已修复   |\n| AI模型智能切换          | 已实现                  | -                    |\n| 本地开发零成本          | 已实现                  | -                    |\n| API单元测试覆盖         | 已实现                  | -                    |\n\n### 4. 问题与解决方案知识卡片\n- mock模式下输入校验失效：将输入校验逻辑提前，无论mock还是真实AI都先校验。\n- 工具页UI回归：恢复为左右分栏，提升可读性和美观度。\n- 工作台刷新丢失进度：localStorage持久化jobId和状态，刷新后自动拉取结果。\n- 高API成本风险：模型降级、mock模式、输入限制、开发环境禁用AI。\n\n### 5. 流程、规则、标准与最佳实践\n- 开发环境一律DISABLE_AI_IN_DEV=true，防止意外消耗。\n- 所有API必须有mock能力和单元测试。\n- 前端所有输入都要有长度限制和用户友好提示。\n- UI设计遵循现代深色风格，分栏布局优先。\n- 状态管理要支持断点恢复和异常处理。\n- 文档与知识沉淀要及时更新，形成团队知识库。\n\n### 6. 高效对话模板与Prompts\n- 角色设定：你是我的联合创始人、全栈架构师、产品经理、LLM专家、PKM专家、SEO专家、资深网虫和blog作家。\n- 需求描述模板：现在我们要实现xxx功能，目标是xxx，要求xxx。请你一步步分析、设计、实现，并严格自查，确保一次性做对。\n- 复盘与知识管理模板：请你对本次开发过程进行全面复盘，输出架构、流程、标准、问题与解决方案、最佳实践、知识沉淀等文档，并提出改进建议。\n\n### 7. 差距分析与改进建议\n- mock模式下输入校验一度失效，说明流程设计上要始终优先用户输入校验，不能因开发便利牺牲用户体验。\n- UI回归问题说明前端改动要有回归测试，UI/UX标准要文档化。\n- 工作台状态丢失说明状态持久化和异常处理要全流程覆盖。\n- 所有API和前端输入校验逻辑必须单元测试覆盖，防止mock/真实分支不一致。\n- UI/UX标准文档化，每次改动都要对照标准回归。\n- 知识管理流程固化，每次复盘都要输出知识卡片，沉淀到团队知识库。\n- 与AI助手对话要结构化、目标导向、可追溯，避免模糊沟通。\n\n---\n\n# 03: Workflow, Standards, and Best Practices\n\nThis document serves as the operational handbook for the `notesorganizer.com` / `KortexAI` team. It codifies the processes and standards we've developed to ensure efficient, high-quality execution.\n\n## 1. Our Golden Workflow\n\nWe follow an agile, iterative loop that combines human strategic direction with AI execution speed.\n\n1.  **Vision & Strategy (Human-led)**: The project lead defines the high-level goals, target audience, and strategic direction.\n2.  **Specific Requirements & Design (Human-led)**: The lead translates the vision into concrete, actionable requirements. For UI/UX, this includes providing \"design blueprints\" in text format, detailing structure, components, and copy.\n3.  **Rapid Implementation (AI-led)**: The AI co-founder takes the specific requirements and executes them, generating code, content, or other assets.\n4.  **Testing & Feedback (Human-led)**: The lead acts as the first user, testing the implementation against the requirements, checking for bugs, and evaluating the user experience.\n5.  **Iterative Refinement (AI-led)**: The AI co-founder incorporates the feedback to debug, refactor, and polish the final output.\n\nThis cycle allows us to move from idea to implementation with maximum velocity.\n\n## 2. Technical & Design Standards\n\n- **Core Tech Stack**: Next.js, Tailwind CSS, MDX, Vercel, Cloudflare.\n- **AI API Standard**: **OpenRouter.ai** is the exclusive gateway for all AI-powered features.\n- **Design Language**: A clean, modern, \"glassmorphism\" style built on a dark theme. The goal is consistency across all user-facing components.\n- **Content Strategy**: A dual approach of:\n    - **Pillar Content**: High-quality, long-form articles to build SEO authority.\n    - **Micro-Tools**: Free, useful AI tools that act as user hooks and demonstrate product value.\n- **Code Standards**:\n    - **Environment Variables**: All sensitive keys (like API keys) must be stored as environment variables and accessed via `.env.local` for local development, never hard-coded.\n    - **Component Reusability**: Strive to create shared, reusable components (e.g., layouts) to maintain consistency and reduce code duplication.\n\n## 3. The Art of Prompting: Effective Collaboration with an AI Partner\n\nThe quality of our output is directly proportional to the quality of our input. Follow these principles for best results.\n\n- **Principle 1: Assign a Role and Context**\n  - **Why**: It helps the AI understand the *intent* behind a request, activating the most relevant knowledge and skills.\n  - **Example**: `As our SEO expert, analyze this blog post and suggest 5 improvements.` is far more effective than `Improve this blog post.`\n\n- **Principle 2: Be Specific and Actionable**\n  - **Why**: Vague requests lead to generic outputs. Concrete instructions lead to precise results.\n  - **Example**: Instead of `Fix the bug on the tools page`, use `When I submit text on the summarizer page, I get a 500 error. The console shows 'API key is invalid'. Please investigate the serverless function.`\n\n- **Principle 3: Provide \"Design Blueprints\" and Key Information**\n  - **Why**: For creative or structured tasks (like UI or content), a clear template is essential. It minimizes ambiguity and rework.\n  - **Example**: To create a new UI section, provide a textual wireframe: `\"Create a 3-column grid. Each column is a card with: 1. An icon (use Heroicons). 2. A title (H3). 3. A short paragraph of text.\"`\n\n- **Principle 4: Embrace the Feedback Loop**\n  - **Why**: The AI is a powerful tool, but not a mind-reader. Your feedback is the most critical part of the process for achieving a high-quality, polished result. Treat the first output as a \"draft\" to be refined.",
+          "analysis": {
+            "title": "03 WORKFLOW AND STANDARDS",
+            "summary": "This is a mock summary generated for development testing.",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "tags": [
+              "#dev",
+              "#test",
+              "#mock"
+            ],
+            "keyPoints": [
+              "Point 1",
+              "Point 2",
+              "Point 3"
+            ],
+            "emotionalTone": "neutral",
+            "readingTime": 5,
+            "complexity": "medium"
+          },
+          "suggestedLinks": [],
+          "enhancedContent": "# NotesOrganizer 知识管理与流程标准（复盘版）\n\n---\n\n## 阶段性复盘与知识沉淀（2024-07-03）\n\n### 1. 代码现状与架构检视\n- 前端：Next.js 14 + App Router，分主站内容、工具页、工作台三大模块，UI美观大气。\n- 后端：API路由分免费工具、项目核心、等待名单等。\n- AI能力：lib/ai/model-router.ts实现智能模型路由，自动切换与成本优化。\n- 分析引擎：lib/ai/note-analyzer.ts实现完整笔记AI分析流程，支持mock数据。\n- KV存储：支持Vercel KV与本地mock，开发/生产环境无缝切换。\n- 测试：API端点均有Vitest单元测试，mock依赖，保证健壮性。\n- 文档：docs/目录下有架构、部署、流程等文档，STAGE2_SUMMARY.md有阶段性总结。\n\n### 2. 主要决策与执行回顾\n- 三阶段战略：Lighthouse→Workbench→Observatory。\n- 产品定位：专注\"知识库整理\"垂直场景，强调智能结构化、隐私友好、极致体验。\n- 技术原则：一次性做对，高质量、快交付、低成本、可扩展。\n- AI模型路由：OpenRouter聚合多模型，自动选择最优模型。\n- API设计：所有AI相关API均有mock模式，开发环境不消耗额度。\n- 输入限制：免费工具2000字上限，防止滥用。\n- 状态管理：工作台任务全流程状态可追踪，支持断点恢复。\n\n### 3. 设计与实现对比分析\n| 设计目标                | 实现现状                | 差距与原因           |\n|-------------------------|-------------------------|----------------------|\n| 免费工具输入限制提示    | 已实现（最新修复）      | mock模式下曾失效，已修正 |\n| 工具页UI美观分栏        | 已实现                  | 一度回归为上下，已恢复 |\n| 工作台状态持久化        | 已实现                  | 早期刷新丢失，已修复   |\n| AI模型智能切换          | 已实现                  | -                    |\n| 本地开发零成本          | 已实现                  | -                    |\n| API单元测试覆盖         | 已实现                  | -                    |\n\n### 4. 问题与解决方案知识卡片\n- mock模式下输入校验失效：将输入校验逻辑提前，无论mock还是真实AI都先校验。\n- 工具页UI回归：恢复为左右分栏，提升可读性和美观度。\n- 工作台刷新丢失进度：localStorage持久化jobId和状态，刷新后自动拉取结果。\n- 高API成本风险：模型降级、mock模式、输入限制、开发环境禁用AI。\n\n### 5. 流程、规则、标准与最佳实践\n- 开发环境一律DISABLE_AI_IN_DEV=true，防止意外消耗。\n- 所有API必须有mock能力和单元测试。\n- 前端所有输入都要有长度限制和用户友好提示。\n- UI设计遵循现代深色风格，分栏布局优先。\n- 状态管理要支持断点恢复和异常处理。\n- 文档与知识沉淀要及时更新，形成团队知识库。\n\n### 6. 高效对话模板与Prompts\n- 角色设定：你是我的联合创始人、全栈架构师、产品经理、LLM专家、PKM专家、SEO专家、资深网虫和blog作家。\n- 需求描述模板：现在我们要实现xxx功能，目标是xxx，要求xxx。请你一步步分析、设计、实现，并严格自查，确保一次性做对。\n- 复盘与知识管理模板：请你对本次开发过程进行全面复盘，输出架构、流程、标准、问题与解决方案、最佳实践、知识沉淀等文档，并提出改进建议。\n\n### 7. 差距分析与改进建议\n- mock模式下输入校验一度失效，说明流程设计上要始终优先用户输入校验，不能因开发便利牺牲用户体验。\n- UI回归问题说明前端改动要有回归测试，UI/UX标准要文档化。\n- 工作台状态丢失说明状态持久化和异常处理要全流程覆盖。\n- 所有API和前端输入校验逻辑必须单元测试覆盖，防止mock/真实分支不一致。\n- UI/UX标准文档化，每次改动都要对照标准回归。\n- 知识管理流程固化，每次复盘都要输出知识卡片，沉淀到团队知识库。\n- 与AI助手对话要结构化、目标导向、可追溯，避免模糊沟通。\n\n---\n\n# 03: Workflow, Standards, and Best Practices\n\nThis document serves as the operational handbook for the `notesorganizer.com` / `KortexAI` team. It codifies the processes and standards we've developed to ensure efficient, high-quality execution.\n\n## 1. Our Golden Workflow\n\nWe follow an agile, iterative loop that combines human strategic direction with AI execution speed.\n\n1.  **Vision & Strategy (Human-led)**: The project lead defines the high-level goals, target audience, and strategic direction.\n2.  **Specific Requirements & Design (Human-led)**: The lead translates the vision into concrete, actionable requirements. For UI/UX, this includes providing \"design blueprints\" in text format, detailing structure, components, and copy.\n3.  **Rapid Implementation (AI-led)**: The AI co-founder takes the specific requirements and executes them, generating code, content, or other assets.\n4.  **Testing & Feedback (Human-led)**: The lead acts as the first user, testing the implementation against the requirements, checking for bugs, and evaluating the user experience.\n5.  **Iterative Refinement (AI-led)**: The AI co-founder incorporates the feedback to debug, refactor, and polish the final output.\n\nThis cycle allows us to move from idea to implementation with maximum velocity.\n\n## 2. Technical & Design Standards\n\n- **Core Tech Stack**: Next.js, Tailwind CSS, MDX, Vercel, Cloudflare.\n- **AI API Standard**: **OpenRouter.ai** is the exclusive gateway for all AI-powered features.\n- **Design Language**: A clean, modern, \"glassmorphism\" style built on a dark theme. The goal is consistency across all user-facing components.\n- **Content Strategy**: A dual approach of:\n    - **Pillar Content**: High-quality, long-form articles to build SEO authority.\n    - **Micro-Tools**: Free, useful AI tools that act as user hooks and demonstrate product value.\n- **Code Standards**:\n    - **Environment Variables**: All sensitive keys (like API keys) must be stored as environment variables and accessed via `.env.local` for local development, never hard-coded.\n    - **Component Reusability**: Strive to create shared, reusable components (e.g., layouts) to maintain consistency and reduce code duplication.\n\n## 3. The Art of Prompting: Effective Collaboration with an AI Partner\n\nThe quality of our output is directly proportional to the quality of our input. Follow these principles for best results.\n\n- **Principle 1: Assign a Role and Context**\n  - **Why**: It helps the AI understand the *intent* behind a request, activating the most relevant knowledge and skills.\n  - **Example**: `As our SEO expert, analyze this blog post and suggest 5 improvements.` is far more effective than `Improve this blog post.`\n\n- **Principle 2: Be Specific and Actionable**\n  - **Why**: Vague requests lead to generic outputs. Concrete instructions lead to precise results.\n  - **Example**: Instead of `Fix the bug on the tools page`, use `When I submit text on the summarizer page, I get a 500 error. The console shows 'API key is invalid'. Please investigate the serverless function.`\n\n- **Principle 3: Provide \"Design Blueprints\" and Key Information**\n  - **Why**: For creative or structured tasks (like UI or content), a clear template is essential. It minimizes ambiguity and rework.\n  - **Example**: To create a new UI section, provide a textual wireframe: `\"Create a 3-column grid. Each column is a card with: 1. An icon (use Heroicons). 2. A title (H3). 3. A short paragraph of text.\"`\n\n- **Principle 4: Embrace the Feedback Loop**\n  - **Why**: The AI is a powerful tool, but not a mind-reader. Your feedback is the most critical part of the process for achieving a high-quality, polished result. Treat the first output as a \"draft\" to be refined."
+        },
+        {
+          "id": "sprint3_summary_md",
+          "fileName": "SPRINT3_SUMMARY.md",
+          "originalContent": "# Sprint 3: User Experience Excellence Summary\n## 用户体验极致优化成果报告\n\n### 🎯 Sprint 目标\n- **上传体验升级**: 动画效果、进度指示、错误处理\n- **处理可视化**: \"知识仪表盘\"、实时洞察展示  \n- **结果展示**: 交互式图谱、搜索筛选功能\n\n### ✅ 完成的核心功能\n\n#### 1. 高级上传组件 (UploadZone)\n**文件**: `components/workbench/UploadZone.tsx`\n\n**功能特性**:\n- ✅ **智能拖拽检测**: 精确的拖拽深度跟踪，防止误触发\n- ✅ **动态视觉反馈**: hover、拖拽状态的流畅动画过渡\n- ✅ **文件选择预览**: 实时显示选中文件信息和大小\n- ✅ **错误状态处理**: 清晰的错误提示和重试机制\n- ✅ **上传进度可视化**: 实时进度条和状态动画\n- ✅ **使用限制展示**: 清晰展示免费版限制和升级路径\n\n**技术亮点**:\n- 使用`useCallback`优化事件处理性能\n- 拖拽深度跟踪避免闪烁问题\n- 渐变动画和缩放效果提升视觉体验\n- 响应式设计适配多种屏幕尺寸\n\n#### 2. 智能处理仪表盘 (ProcessingDashboard)\n**文件**: `components/workbench/ProcessingDashboard.tsx`\n\n**功能特性**:\n- ✅ **多阶段进度显示**: Upload → Queue → Analyze 三阶段可视化\n- ✅ **实时处理统计**: 已处理笔记数、处理速度、剩余时间\n- ✅ **当前处理状态**: 显示正在处理的笔记名称\n- ✅ **时间追踪**: 已用时间、预计剩余时间、处理速率\n- ✅ **文件摘要信息**: 文件名、笔记数量、文件大小统计\n- ✅ **处理提示**: 智能显示AI正在执行的任务\n\n**技术亮点**:\n- 动态状态图标和动画效果\n- 实时计算处理速率和预估时间\n- 分步骤进度条展示处理流程\n- 背景提示用户了解AI处理过程\n\n#### 3. 交互式结果仪表盘 (ResultsDashboard)\n**文件**: `components/workbench/ResultsDashboard.tsx`\n\n**功能特性**:\n- ✅ **多标签页界面**: Notes、Knowledge Graph、Health Report\n- ✅ **高级搜索过滤**: 标题、内容、标签全文搜索\n- ✅ **标签筛选系统**: 动态标签列表和快速筛选\n- ✅ **网格/列表视图**: 可切换的显示模式\n- ✅ **笔记详情模态框**: 深度查看笔记内容、关键点和连接\n- ✅ **知识图谱预览**: 强连接关系展示和权重可视化\n- ✅ **健康度分析**: 分数可视化、主题分布、连接健康度\n\n**技术亮点**:\n- `useMemo`优化大数据列表性能\n- 模态框详情查看体验\n- 渐变色彩和动效提升视觉体验\n- 响应式卡片布局\n\n### 🚀 技术架构升级\n\n#### 组件化架构\n- **模块化设计**: 每个组件职责单一，高度可复用\n- **接口标准化**: 清晰的Props接口定义\n- **状态管理优化**: 合理的状态提升和数据流\n\n#### 性能优化\n- **懒加载**: 按需渲染大数据列表\n- **回调缓存**: useCallback防止不必要的重渲染\n- **计算缓存**: useMemo优化复杂计算\n- **动画优化**: 使用CSS transitions而非JavaScript动画\n\n#### 用户体验设计\n- **一致的设计语言**: 统一的颜色、间距、圆角规范\n- **渐进式交互**: 从简单到复杂的用户引导\n- **状态反馈**: 实时的视觉和文字反馈\n- **错误处理**: 友好的错误提示和恢复机制\n\n### 📊 产品指标提升\n\n#### 用户交互效率\n- **上传流程**: 简化为拖拽/点击一步完成\n- **状态可见性**: 100% 处理状态透明度\n- **结果查找**: 秒级搜索和筛选响应\n- **数据导航**: 3-click 访问任何结果详情\n\n#### 视觉设计质量\n- **动画流畅度**: 60fps 流畅动画\n- **色彩层次**: 5层语义化色彩系统\n- **空间节奏**: 黄金比例间距设计\n- **响应式**: 100% 移动设备适配\n\n#### 功能完整性\n- **搜索功能**: 全文搜索 + 标签过滤\n- **数据展示**: 3种数据视图 (笔记/图谱/健康)\n- **交互方式**: 6种用户操作模式\n- **状态管理**: 全生命周期状态追踪\n\n### 🎨 Design System 建立\n\n#### 颜色系统\n```css\n- 主色: Blue (500-600) / Purple (500-600)\n- 成功: Green (400-500)\n- 警告: Yellow (400-500)  \n- 错误: Red (400-500)\n- 中性: Gray (300-800)\n```\n\n#### 动画规范\n```css\n- 过渡时间: 200ms-500ms\n- 缓动函数: ease-out / ease-in-out\n- 缩放范围: 1.0-1.1\n- 透明度: 0.5-1.0\n```\n\n#### 间距系统\n```css\n- 基础单位: 4px\n- 组件间距: 16px-24px  \n- 页面边距: 32px-48px\n- 内容最大宽度: 1200px\n```\n\n### 🔧 集成工作\n\n#### 工作台页面重构\n**文件**: `app/workbench/page.tsx`\n\n**改进内容**:\n- ✅ **组件替换**: 用新组件替换原有基础UI\n- ✅ **状态适配**: 优化状态数据流传递\n- ✅ **错误处理**: 统一的错误边界处理\n- ✅ **性能优化**: 移除不必要的状态和函数\n\n#### 导入优化\n- ✅ **路径标准化**: 相对路径导入\n- ✅ **懒加载**: 按需组件加载\n- ✅ **Tree Shaking**: 优化打包体积\n\n### 📱 响应式设计\n\n#### 断点策略\n- **Mobile**: < 768px - 单列布局\n- **Tablet**: 768px-1024px - 双列布局  \n- **Desktop**: > 1024px - 三列布局\n- **Ultra-wide**: > 1400px - 四列布局\n\n#### 适配优化\n- ✅ **触摸友好**: 44px+ 最小触摸目标\n- ✅ **可读性**: 16px+ 最小字体大小\n- ✅ **导航优化**: 移动端友好的操作模式\n- ✅ **性能考虑**: 移动端动画简化\n\n### 🧪 质量保证\n\n#### 测试覆盖\n- ✅ **单元测试**: 30/30 tests passing\n- ✅ **组件测试**: 新组件接口验证\n- ✅ **集成测试**: 端到端工作流验证\n- ✅ **兼容性**: TypeScript 类型安全\n\n#### 性能指标\n- ✅ **首屏渲染**: < 1.5s\n- ✅ **交互响应**: < 100ms\n- ✅ **内存使用**: 优化状态管理\n- ✅ **包大小**: Tree shaking 优化\n\n### 🎯 用户价值实现\n\n#### 效率提升\n1. **上传体验**: 80% 用户操作步骤减少\n2. **状态感知**: 100% 处理过程可视化\n3. **结果查找**: 90% 查找时间节省\n4. **数据理解**: 3倍信息消化效率\n\n#### 专业体验\n1. **视觉层次**: 企业级设计标准\n2. **交互流畅**: 原生应用级体验\n3. **功能完整**: 竞品对标功能完善\n4. **可靠性**: 错误处理和恢复机制\n\n### 🚀 下阶段规划 (Sprint 4)\n\n#### 即将推出\n1. **真实知识图谱**: D3.js 交互式图谱\n2. **高级搜索**: 语义搜索和AI问答\n3. **协作功能**: 多用户分享和评论\n4. **API开放**: 开发者集成接口\n\n#### 技术债务\n1. **单元测试**: 新组件测试用例补全\n2. **国际化**: i18n 多语言支持\n3. **可访问性**: WCAG 2.1 AA 标准\n4. **SEO优化**: 结果页面SEO增强\n\n### 📈 成功指标\n\n#### 技术指标\n- ✅ **0** TypeScript 错误\n- ✅ **30/30** 测试通过\n- ✅ **3** 新组件模块\n- ✅ **500+** 代码行数减少\n\n#### 产品指标  \n- ✅ **100%** 功能完整性\n- ✅ **95%** 响应式覆盖\n- ✅ **90%** 交互流畅度\n- ✅ **85%** 视觉设计完成度\n\n---\n\n## 总结\n\nSprint 3 成功完成了用户体验的极致优化，建立了企业级的设计系统和组件库。通过模块化的架构设计，不仅提升了用户体验，还为后续功能开发奠定了坚实的技术基础。\n\n产品现已具备与主流 PKM 工具竞争的用户体验水准，为 Sprint 4 的高级功能开发和商业化准备了充分条件。\n\n**下一步**: 启动 Sprint 4 - 高级功能开发与商业化准备",
+          "analysis": {
+            "title": "SPRINT3 SUMMARY",
+            "summary": "This is a mock summary generated for development testing.",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "tags": [
+              "#dev",
+              "#test",
+              "#mock"
+            ],
+            "keyPoints": [
+              "Point 1",
+              "Point 2",
+              "Point 3"
+            ],
+            "emotionalTone": "neutral",
+            "readingTime": 3,
+            "complexity": "medium"
+          },
+          "suggestedLinks": [],
+          "enhancedContent": "# Sprint 3: User Experience Excellence Summary\n## 用户体验极致优化成果报告\n\n### 🎯 Sprint 目标\n- **上传体验升级**: 动画效果、进度指示、错误处理\n- **处理可视化**: \"知识仪表盘\"、实时洞察展示  \n- **结果展示**: 交互式图谱、搜索筛选功能\n\n### ✅ 完成的核心功能\n\n#### 1. 高级上传组件 (UploadZone)\n**文件**: `components/workbench/UploadZone.tsx`\n\n**功能特性**:\n- ✅ **智能拖拽检测**: 精确的拖拽深度跟踪，防止误触发\n- ✅ **动态视觉反馈**: hover、拖拽状态的流畅动画过渡\n- ✅ **文件选择预览**: 实时显示选中文件信息和大小\n- ✅ **错误状态处理**: 清晰的错误提示和重试机制\n- ✅ **上传进度可视化**: 实时进度条和状态动画\n- ✅ **使用限制展示**: 清晰展示免费版限制和升级路径\n\n**技术亮点**:\n- 使用`useCallback`优化事件处理性能\n- 拖拽深度跟踪避免闪烁问题\n- 渐变动画和缩放效果提升视觉体验\n- 响应式设计适配多种屏幕尺寸\n\n#### 2. 智能处理仪表盘 (ProcessingDashboard)\n**文件**: `components/workbench/ProcessingDashboard.tsx`\n\n**功能特性**:\n- ✅ **多阶段进度显示**: Upload → Queue → Analyze 三阶段可视化\n- ✅ **实时处理统计**: 已处理笔记数、处理速度、剩余时间\n- ✅ **当前处理状态**: 显示正在处理的笔记名称\n- ✅ **时间追踪**: 已用时间、预计剩余时间、处理速率\n- ✅ **文件摘要信息**: 文件名、笔记数量、文件大小统计\n- ✅ **处理提示**: 智能显示AI正在执行的任务\n\n**技术亮点**:\n- 动态状态图标和动画效果\n- 实时计算处理速率和预估时间\n- 分步骤进度条展示处理流程\n- 背景提示用户了解AI处理过程\n\n#### 3. 交互式结果仪表盘 (ResultsDashboard)\n**文件**: `components/workbench/ResultsDashboard.tsx`\n\n**功能特性**:\n- ✅ **多标签页界面**: Notes、Knowledge Graph、Health Report\n- ✅ **高级搜索过滤**: 标题、内容、标签全文搜索\n- ✅ **标签筛选系统**: 动态标签列表和快速筛选\n- ✅ **网格/列表视图**: 可切换的显示模式\n- ✅ **笔记详情模态框**: 深度查看笔记内容、关键点和连接\n- ✅ **知识图谱预览**: 强连接关系展示和权重可视化\n- ✅ **健康度分析**: 分数可视化、主题分布、连接健康度\n\n**技术亮点**:\n- `useMemo`优化大数据列表性能\n- 模态框详情查看体验\n- 渐变色彩和动效提升视觉体验\n- 响应式卡片布局\n\n### 🚀 技术架构升级\n\n#### 组件化架构\n- **模块化设计**: 每个组件职责单一，高度可复用\n- **接口标准化**: 清晰的Props接口定义\n- **状态管理优化**: 合理的状态提升和数据流\n\n#### 性能优化\n- **懒加载**: 按需渲染大数据列表\n- **回调缓存**: useCallback防止不必要的重渲染\n- **计算缓存**: useMemo优化复杂计算\n- **动画优化**: 使用CSS transitions而非JavaScript动画\n\n#### 用户体验设计\n- **一致的设计语言**: 统一的颜色、间距、圆角规范\n- **渐进式交互**: 从简单到复杂的用户引导\n- **状态反馈**: 实时的视觉和文字反馈\n- **错误处理**: 友好的错误提示和恢复机制\n\n### 📊 产品指标提升\n\n#### 用户交互效率\n- **上传流程**: 简化为拖拽/点击一步完成\n- **状态可见性**: 100% 处理状态透明度\n- **结果查找**: 秒级搜索和筛选响应\n- **数据导航**: 3-click 访问任何结果详情\n\n#### 视觉设计质量\n- **动画流畅度**: 60fps 流畅动画\n- **色彩层次**: 5层语义化色彩系统\n- **空间节奏**: 黄金比例间距设计\n- **响应式**: 100% 移动设备适配\n\n#### 功能完整性\n- **搜索功能**: 全文搜索 + 标签过滤\n- **数据展示**: 3种数据视图 (笔记/图谱/健康)\n- **交互方式**: 6种用户操作模式\n- **状态管理**: 全生命周期状态追踪\n\n### 🎨 Design System 建立\n\n#### 颜色系统\n```css\n- 主色: Blue (500-600) / Purple (500-600)\n- 成功: Green (400-500)\n- 警告: Yellow (400-500)  \n- 错误: Red (400-500)\n- 中性: Gray (300-800)\n```\n\n#### 动画规范\n```css\n- 过渡时间: 200ms-500ms\n- 缓动函数: ease-out / ease-in-out\n- 缩放范围: 1.0-1.1\n- 透明度: 0.5-1.0\n```\n\n#### 间距系统\n```css\n- 基础单位: 4px\n- 组件间距: 16px-24px  \n- 页面边距: 32px-48px\n- 内容最大宽度: 1200px\n```\n\n### 🔧 集成工作\n\n#### 工作台页面重构\n**文件**: `app/workbench/page.tsx`\n\n**改进内容**:\n- ✅ **组件替换**: 用新组件替换原有基础UI\n- ✅ **状态适配**: 优化状态数据流传递\n- ✅ **错误处理**: 统一的错误边界处理\n- ✅ **性能优化**: 移除不必要的状态和函数\n\n#### 导入优化\n- ✅ **路径标准化**: 相对路径导入\n- ✅ **懒加载**: 按需组件加载\n- ✅ **Tree Shaking**: 优化打包体积\n\n### 📱 响应式设计\n\n#### 断点策略\n- **Mobile**: < 768px - 单列布局\n- **Tablet**: 768px-1024px - 双列布局  \n- **Desktop**: > 1024px - 三列布局\n- **Ultra-wide**: > 1400px - 四列布局\n\n#### 适配优化\n- ✅ **触摸友好**: 44px+ 最小触摸目标\n- ✅ **可读性**: 16px+ 最小字体大小\n- ✅ **导航优化**: 移动端友好的操作模式\n- ✅ **性能考虑**: 移动端动画简化\n\n### 🧪 质量保证\n\n#### 测试覆盖\n- ✅ **单元测试**: 30/30 tests passing\n- ✅ **组件测试**: 新组件接口验证\n- ✅ **集成测试**: 端到端工作流验证\n- ✅ **兼容性**: TypeScript 类型安全\n\n#### 性能指标\n- ✅ **首屏渲染**: < 1.5s\n- ✅ **交互响应**: < 100ms\n- ✅ **内存使用**: 优化状态管理\n- ✅ **包大小**: Tree shaking 优化\n\n### 🎯 用户价值实现\n\n#### 效率提升\n1. **上传体验**: 80% 用户操作步骤减少\n2. **状态感知**: 100% 处理过程可视化\n3. **结果查找**: 90% 查找时间节省\n4. **数据理解**: 3倍信息消化效率\n\n#### 专业体验\n1. **视觉层次**: 企业级设计标准\n2. **交互流畅**: 原生应用级体验\n3. **功能完整**: 竞品对标功能完善\n4. **可靠性**: 错误处理和恢复机制\n\n### 🚀 下阶段规划 (Sprint 4)\n\n#### 即将推出\n1. **真实知识图谱**: D3.js 交互式图谱\n2. **高级搜索**: 语义搜索和AI问答\n3. **协作功能**: 多用户分享和评论\n4. **API开放**: 开发者集成接口\n\n#### 技术债务\n1. **单元测试**: 新组件测试用例补全\n2. **国际化**: i18n 多语言支持\n3. **可访问性**: WCAG 2.1 AA 标准\n4. **SEO优化**: 结果页面SEO增强\n\n### 📈 成功指标\n\n#### 技术指标\n- ✅ **0** TypeScript 错误\n- ✅ **30/30** 测试通过\n- ✅ **3** 新组件模块\n- ✅ **500+** 代码行数减少\n\n#### 产品指标  \n- ✅ **100%** 功能完整性\n- ✅ **95%** 响应式覆盖\n- ✅ **90%** 交互流畅度\n- ✅ **85%** 视觉设计完成度\n\n---\n\n## 总结\n\nSprint 3 成功完成了用户体验的极致优化，建立了企业级的设计系统和组件库。通过模块化的架构设计，不仅提升了用户体验，还为后续功能开发奠定了坚实的技术基础。\n\n产品现已具备与主流 PKM 工具竞争的用户体验水准，为 Sprint 4 的高级功能开发和商业化准备了充分条件。\n\n**下一步**: 启动 Sprint 4 - 高级功能开发与商业化准备"
+        },
+        {
+          "id": "stage0_summary_md",
+          "fileName": "STAGE0_SUMMARY.md",
+          "originalContent": "# NotesOrganizer STAGE0 阶段性复盘与知识沉淀（2025-07-01）\n\n---\n\n## 1. 项目缘起与愿景设定\n- 源于对个人知识管理（PKM）领域的深度痛点洞察：信息碎片化、工具割裂、AI能力缺失。\n- 初步愿景：打造一个\"AI驱动、极致体验、数据主权\"的新一代知识管理平台。\n- 明确以\"内容+工具\"双轮驱动，兼顾权威性与实用性。\n- 设定三阶段蓝图：Lighthouse（内容灯塔）→ Workbench（AI工作台）→ Observatory（智能洞察）。\n\n## 2. 核心原则与团队宪法\n- 用户为本，AI为辅：AI是知识工作者的副驾驶，赋能而非替代。\n- 数据主权：用户知识归用户所有，优先本地化、开放标准。\n- 简约不简单：复杂留给系统，体验留给用户。\n- 社区导向：服务严肃创作者与知识工作者，构建高质量社群。\n- 战略务实：小团队高效，快速试错，聚焦核心价值。\n\n## 3. 技术雏形与选型探索\n- 前端：初步选用Next.js + Tailwind CSS，追求现代、极简、暗色风格。\n- 内容管理：Docs-as-Code（MD/MDX），Git驱动，便于版本管理与协作。\n- AI能力：调研OpenRouter.ai等聚合API，优先后端封装，前端绝不暴露Key。\n- 部署：Vercel为首选，自动化CI/CD。\n- 早期仅搭建最小可用架构，快速验证技术可行性。\n\n## 4. 早期内容与功能实验\n- 撰写PKM领域核心Pillar Content，测试SEO与内容影响力。\n- 设计AI微工具（如摘要、标题生成）原型，探索Prompt与API集成。\n- 首页初步分区：Hero、PainPoints、Toolkit、Conversion，验证信息架构。\n- 早期UI风格探索，强调品牌色与可读性。\n\n## 5. 团队协作与流程雏形\n- 明确AI助手深度参与产品、技术、内容全流程。\n- 形成\"战略-需求-实现-测试-复盘\"初步闭环。\n- 经验沉淀至docs/00_CONSTITUTION.md，确立团队宪法与协作原则。\n\n## 6. 主要痛点、机会与反思\n- 痛点：PKM工具割裂、AI能力弱、数据不自主、内容稀缺。\n- 机会：AI大模型普及、Serverless架构成熟、内容生态空白。\n- 反思：0到1阶段以探索为主，快速试错、及时复盘、聚焦核心。\n\n---\n\n# NotesOrganizer 零阶段完成总结\n\n## 🎯 任务目标\n完成项目愿景、核心原则、技术雏形、内容与工具原型，为后续1阶段\"内容灯塔\"打下坚实基础。\n\n## ✅ 已完成的核心成果\n\n### 1. 团队宪法与原则确立\n- 形成00_CONSTITUTION.md，明确五大核心原则。\n- 用户为本、数据主权、简约体验、社区导向、战略务实。\n\n### 2. 技术与内容雏形\n- Next.js + Tailwind CSS架构初步搭建。\n- Docs-as-Code内容管理模式落地。\n- AI微工具原型设计与Prompt实验。\n\n### 3. 流程与协作机制\n- 明确AI助手深度参与，形成高效闭环。\n- 经验沉淀与知识管理初步成型。\n\n## 🏆 里程碑成就\n\n✅ **零阶段核心目标100%完成**\n- 愿景与战略蓝图明确\n- 团队宪法与协作机制确立\n- 技术与内容雏形落地\n\n**我们已成功完成0到1的原点探索，为AI驱动知识管理平台的进化点亮第一束光！**\n\n---\n\n*Generated on 2024-05-01 by NotesOrganizer AI Development Team*",
+          "analysis": {
+            "title": "STAGE0 SUMMARY",
+            "summary": "This is a mock summary generated for development testing.",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "tags": [
+              "#dev",
+              "#test",
+              "#mock"
+            ],
+            "keyPoints": [
+              "Point 1",
+              "Point 2",
+              "Point 3"
+            ],
+            "emotionalTone": "neutral",
+            "readingTime": 1,
+            "complexity": "medium"
+          },
+          "suggestedLinks": [],
+          "enhancedContent": "# NotesOrganizer STAGE0 阶段性复盘与知识沉淀（2025-07-01）\n\n---\n\n## 1. 项目缘起与愿景设定\n- 源于对个人知识管理（PKM）领域的深度痛点洞察：信息碎片化、工具割裂、AI能力缺失。\n- 初步愿景：打造一个\"AI驱动、极致体验、数据主权\"的新一代知识管理平台。\n- 明确以\"内容+工具\"双轮驱动，兼顾权威性与实用性。\n- 设定三阶段蓝图：Lighthouse（内容灯塔）→ Workbench（AI工作台）→ Observatory（智能洞察）。\n\n## 2. 核心原则与团队宪法\n- 用户为本，AI为辅：AI是知识工作者的副驾驶，赋能而非替代。\n- 数据主权：用户知识归用户所有，优先本地化、开放标准。\n- 简约不简单：复杂留给系统，体验留给用户。\n- 社区导向：服务严肃创作者与知识工作者，构建高质量社群。\n- 战略务实：小团队高效，快速试错，聚焦核心价值。\n\n## 3. 技术雏形与选型探索\n- 前端：初步选用Next.js + Tailwind CSS，追求现代、极简、暗色风格。\n- 内容管理：Docs-as-Code（MD/MDX），Git驱动，便于版本管理与协作。\n- AI能力：调研OpenRouter.ai等聚合API，优先后端封装，前端绝不暴露Key。\n- 部署：Vercel为首选，自动化CI/CD。\n- 早期仅搭建最小可用架构，快速验证技术可行性。\n\n## 4. 早期内容与功能实验\n- 撰写PKM领域核心Pillar Content，测试SEO与内容影响力。\n- 设计AI微工具（如摘要、标题生成）原型，探索Prompt与API集成。\n- 首页初步分区：Hero、PainPoints、Toolkit、Conversion，验证信息架构。\n- 早期UI风格探索，强调品牌色与可读性。\n\n## 5. 团队协作与流程雏形\n- 明确AI助手深度参与产品、技术、内容全流程。\n- 形成\"战略-需求-实现-测试-复盘\"初步闭环。\n- 经验沉淀至docs/00_CONSTITUTION.md，确立团队宪法与协作原则。\n\n## 6. 主要痛点、机会与反思\n- 痛点：PKM工具割裂、AI能力弱、数据不自主、内容稀缺。\n- 机会：AI大模型普及、Serverless架构成熟、内容生态空白。\n- 反思：0到1阶段以探索为主，快速试错、及时复盘、聚焦核心。\n\n---\n\n# NotesOrganizer 零阶段完成总结\n\n## 🎯 任务目标\n完成项目愿景、核心原则、技术雏形、内容与工具原型，为后续1阶段\"内容灯塔\"打下坚实基础。\n\n## ✅ 已完成的核心成果\n\n### 1. 团队宪法与原则确立\n- 形成00_CONSTITUTION.md，明确五大核心原则。\n- 用户为本、数据主权、简约体验、社区导向、战略务实。\n\n### 2. 技术与内容雏形\n- Next.js + Tailwind CSS架构初步搭建。\n- Docs-as-Code内容管理模式落地。\n- AI微工具原型设计与Prompt实验。\n\n### 3. 流程与协作机制\n- 明确AI助手深度参与，形成高效闭环。\n- 经验沉淀与知识管理初步成型。\n\n## 🏆 里程碑成就\n\n✅ **零阶段核心目标100%完成**\n- 愿景与战略蓝图明确\n- 团队宪法与协作机制确立\n- 技术与内容雏形落地\n\n**我们已成功完成0到1的原点探索，为AI驱动知识管理平台的进化点亮第一束光！**\n\n---\n\n*Generated on 2024-05-01 by NotesOrganizer AI Development Team*"
+        },
+        {
+          "id": "stage1_summary_md",
+          "fileName": "STAGE1_SUMMARY.md",
+          "originalContent": "# NotesOrganizer STAGE1 阶段性复盘与知识沉淀（2025-07-02）\n\n---\n\n## 1. 项目启动与战略探索\n- 项目正式启动，目标打造AI驱动的个人知识管理平台。\n- 明确\"内容+工具\"双轮驱动战略，以高质量Pillar Content和免费AI微工具为流量入口。\n- 通过市场调研，聚焦PKM（个人知识管理）垂直领域，强调智能、隐私、极致体验。\n- 制定三阶段战略蓝图：Lighthouse（内容灯塔）→ Workbench（AI工作台）→ Observatory（智能洞察）。\n\n## 2. 技术选型与架构雏形\n- 前端：Next.js 14 + App Router，Tailwind CSS，内容采用Docs-as-Code（MD/MDX）。\n- 部署：Vercel一键部署，自动化CI/CD。\n- AI能力：优先选用OpenRouter.ai聚合模型，兼顾成本、灵活性与稳定性。\n- 后端：Serverless API架构，所有AI调用后端封装，前端绝不暴露API Key。\n- 环境变量：.env.local管理，敏感信息不入库。\n\n## 3. 内容与工具雏形建设\n- 上线首批Pillar Content（如PKM终极指南、Zettelkasten方法等），初步建立SEO与权威性。\n- 开发AI Note Summarizer与AI Title Generator MVP，前后端打通OpenRouter，Prompt精心设计。\n- 工具页采用统一布局，初步实现暗色玻璃拟态风格，移动端响应式适配。\n- 首页Hero区、PainPoints区、Toolkit区等核心板块完成初版搭建。\n\n## 4. 早期问题与解决\n- 构建失败（如ESLint、环境变量缺失）快速定位并修复。\n- UI/UX问题（如双Header/Footer、内容遮挡、样式不统一）多轮迭代优化。\n- 通过删除冗余layout.tsx等架构调整，解决全局布局冲突。\n- AdSense集成：配置meta、ads.txt、script，满足Google要求。\n\n## 5. 流程、标准与团队协作\n- 形成\"战略-需求-实现-测试-迭代\"闭环工作流。\n- 明确技术栈、API供应商、设计语言、内容策略、环境变量管理等初步标准。\n- 总结高效AI协作Prompt原则：角色设定、具体可执行、蓝图先行、反馈循环。\n- 经验沉淀至docs/03_WORKFLOW_AND_STANDARDS.md，便于团队知识管理。\n\n## 6. 差距分析与改进建议\n- 战略上主动升级，产品从\"工具\"进化为\"平台+内容+工具\"一体化。\n- 差距源于对市场与用户需求的敏锐洞察，灵活调整方向。\n- 重大决策、问题与解决方案均有文档化，形成可复用知识资产。\n\n---\n\n# NotesOrganizer 第一阶段完成总结\n\n## �� 任务目标\n以\"内容灯塔\"为核心，完成高质量内容建设与AI工具MVP，验证市场需求与技术可行性，为后续AI工作台打下坚实基础。\n\n## ✅ 已完成的核心成果\n\n### 1. 内容灯塔建设\n- 上线PKM终极指南、Zettelkasten方法等权威内容。\n- SEO初步见效，建立领域影响力。\n\n### 2. AI工具MVP\n- AI Note Summarizer与AI Title Generator全栈打通。\n- 前后端均接入OpenRouter，Prompt调优，输出稳定。\n- 工具页UI/UX统一，移动端适配。\n\n### 3. 技术架构雏形\n- Next.js 14 + Tailwind CSS + Serverless API。\n- OpenRouter.ai模型聚合，后端安全封装。\n- Vercel自动部署，.env.local环境变量管理。\n\n### 4. 团队协作与流程\n- 明确分工，AI助手深度参与产品、技术、内容全流程。\n- 形成高效的需求-实现-测试-复盘闭环。\n- 经验沉淀至团队知识库。\n\n## 🧪 验证与反馈\n- 工具功能、内容质量均获早期用户正向反馈。\n- 架构稳定，部署顺利，SEO效果初显。\n- 发现并修复多项早期问题，流程逐步完善。\n\n## 🏗️ 技术与产品优势\n- 技术选型前瞻，架构简洁可扩展。\n- 内容与工具双轮驱动，流量与转化兼顾。\n- 团队协作高效，AI助力显著。\n\n## 🔜 下一步规划\n- 持续丰富内容与工具，积累用户与品牌势能。\n- 迭代优化UI/UX与AI能力。\n- 为AI工作台与更高级功能做准备。\n\n## 🏆 里程碑成就\n\n✅ **第一阶段核心目标100%完成**\n- 内容灯塔成功上线\n- AI工具MVP打通\n- 技术架构稳定可扩展\n- 团队协作高效闭环\n\n**我们已成功点亮\"灯塔\"，为AI驱动知识管理平台的进化奠定坚实基础！**\n\n---\n\n*Generated on 2024-06-01 by NotesOrganizer AI Development Team*",
+          "analysis": {
+            "title": "STAGE1 SUMMARY",
+            "summary": "This is a mock summary generated for development testing.",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "tags": [
+              "#dev",
+              "#test",
+              "#mock"
+            ],
+            "keyPoints": [
+              "Point 1",
+              "Point 2",
+              "Point 3"
+            ],
+            "emotionalTone": "neutral",
+            "readingTime": 1,
+            "complexity": "medium"
+          },
+          "suggestedLinks": [],
+          "enhancedContent": "# NotesOrganizer STAGE1 阶段性复盘与知识沉淀（2025-07-02）\n\n---\n\n## 1. 项目启动与战略探索\n- 项目正式启动，目标打造AI驱动的个人知识管理平台。\n- 明确\"内容+工具\"双轮驱动战略，以高质量Pillar Content和免费AI微工具为流量入口。\n- 通过市场调研，聚焦PKM（个人知识管理）垂直领域，强调智能、隐私、极致体验。\n- 制定三阶段战略蓝图：Lighthouse（内容灯塔）→ Workbench（AI工作台）→ Observatory（智能洞察）。\n\n## 2. 技术选型与架构雏形\n- 前端：Next.js 14 + App Router，Tailwind CSS，内容采用Docs-as-Code（MD/MDX）。\n- 部署：Vercel一键部署，自动化CI/CD。\n- AI能力：优先选用OpenRouter.ai聚合模型，兼顾成本、灵活性与稳定性。\n- 后端：Serverless API架构，所有AI调用后端封装，前端绝不暴露API Key。\n- 环境变量：.env.local管理，敏感信息不入库。\n\n## 3. 内容与工具雏形建设\n- 上线首批Pillar Content（如PKM终极指南、Zettelkasten方法等），初步建立SEO与权威性。\n- 开发AI Note Summarizer与AI Title Generator MVP，前后端打通OpenRouter，Prompt精心设计。\n- 工具页采用统一布局，初步实现暗色玻璃拟态风格，移动端响应式适配。\n- 首页Hero区、PainPoints区、Toolkit区等核心板块完成初版搭建。\n\n## 4. 早期问题与解决\n- 构建失败（如ESLint、环境变量缺失）快速定位并修复。\n- UI/UX问题（如双Header/Footer、内容遮挡、样式不统一）多轮迭代优化。\n- 通过删除冗余layout.tsx等架构调整，解决全局布局冲突。\n- AdSense集成：配置meta、ads.txt、script，满足Google要求。\n\n## 5. 流程、标准与团队协作\n- 形成\"战略-需求-实现-测试-迭代\"闭环工作流。\n- 明确技术栈、API供应商、设计语言、内容策略、环境变量管理等初步标准。\n- 总结高效AI协作Prompt原则：角色设定、具体可执行、蓝图先行、反馈循环。\n- 经验沉淀至docs/03_WORKFLOW_AND_STANDARDS.md，便于团队知识管理。\n\n## 6. 差距分析与改进建议\n- 战略上主动升级，产品从\"工具\"进化为\"平台+内容+工具\"一体化。\n- 差距源于对市场与用户需求的敏锐洞察，灵活调整方向。\n- 重大决策、问题与解决方案均有文档化，形成可复用知识资产。\n\n---\n\n# NotesOrganizer 第一阶段完成总结\n\n## �� 任务目标\n以\"内容灯塔\"为核心，完成高质量内容建设与AI工具MVP，验证市场需求与技术可行性，为后续AI工作台打下坚实基础。\n\n## ✅ 已完成的核心成果\n\n### 1. 内容灯塔建设\n- 上线PKM终极指南、Zettelkasten方法等权威内容。\n- SEO初步见效，建立领域影响力。\n\n### 2. AI工具MVP\n- AI Note Summarizer与AI Title Generator全栈打通。\n- 前后端均接入OpenRouter，Prompt调优，输出稳定。\n- 工具页UI/UX统一，移动端适配。\n\n### 3. 技术架构雏形\n- Next.js 14 + Tailwind CSS + Serverless API。\n- OpenRouter.ai模型聚合，后端安全封装。\n- Vercel自动部署，.env.local环境变量管理。\n\n### 4. 团队协作与流程\n- 明确分工，AI助手深度参与产品、技术、内容全流程。\n- 形成高效的需求-实现-测试-复盘闭环。\n- 经验沉淀至团队知识库。\n\n## 🧪 验证与反馈\n- 工具功能、内容质量均获早期用户正向反馈。\n- 架构稳定，部署顺利，SEO效果初显。\n- 发现并修复多项早期问题，流程逐步完善。\n\n## 🏗️ 技术与产品优势\n- 技术选型前瞻，架构简洁可扩展。\n- 内容与工具双轮驱动，流量与转化兼顾。\n- 团队协作高效，AI助力显著。\n\n## 🔜 下一步规划\n- 持续丰富内容与工具，积累用户与品牌势能。\n- 迭代优化UI/UX与AI能力。\n- 为AI工作台与更高级功能做准备。\n\n## 🏆 里程碑成就\n\n✅ **第一阶段核心目标100%完成**\n- 内容灯塔成功上线\n- AI工具MVP打通\n- 技术架构稳定可扩展\n- 团队协作高效闭环\n\n**我们已成功点亮\"灯塔\"，为AI驱动知识管理平台的进化奠定坚实基础！**\n\n---\n\n*Generated on 2024-06-01 by NotesOrganizer AI Development Team*"
+        },
+        {
+          "id": "stage2_summary_md",
+          "fileName": "STAGE2_SUMMARY.md",
+          "originalContent": "# NotesOrganizer STAGE2 阶段性复盘与知识沉淀（2025-07-03）\n\n---\n\n## 1. 代码现状与架构检视\n- 前端：Next.js 14 + App Router，分主站内容、工具页、工作台三大模块，UI美观大气。\n- 后端：API路由分免费工具、项目核心、等待名单等。\n- AI能力：lib/ai/model-router.ts实现智能模型路由，自动切换与成本优化。\n- 分析引擎：lib/ai/note-analyzer.ts实现完整笔记AI分析流程，支持mock数据。\n- KV存储：支持Vercel KV与本地mock，开发/生产环境无缝切换。\n- 测试：API端点均有Vitest单元测试，mock依赖，保证健壮性。\n- 文档：docs/目录下有架构、部署、流程等文档，STAGE2_SUMMARY.md有阶段性总结。\n\n## 2. 主要决策与执行回顾\n- 三阶段战略：Lighthouse→Workbench→Observatory。\n- 产品定位：专注\"知识库整理\"垂直场景，强调智能结构化、隐私友好、极致体验。\n- 技术原则：一次性做对，高质量、快交付、低成本、可扩展。\n- AI模型路由：OpenRouter聚合多模型，自动选择最优模型。\n- API设计：所有AI相关API均有mock模式，开发环境不消耗额度。\n- 输入限制：免费工具2000字上限，防止滥用。\n- 状态管理：工作台任务全流程状态可追踪，支持断点恢复。\n\n## 3. 设计与实现对比分析\n| 设计目标                | 实现现状                | 差距与原因           |\n|-------------------------|-------------------------|----------------------|\n| 免费工具输入限制提示    | 已实现（最新修复）      | mock模式下曾失效，已修正 |\n| 工具页UI美观分栏        | 已实现                  | 一度回归为上下，已恢复 |\n| 工作台状态持久化        | 已实现                  | 早期刷新丢失，已修复   |\n| AI模型智能切换          | 已实现                  | -                    |\n| 本地开发零成本          | 已实现                  | -                    |\n| API单元测试覆盖         | 已实现                  | -                    |\n\n## 4. 问题与解决方案知识卡片\n- mock模式下输入校验失效：将输入校验逻辑提前，无论mock还是真实AI都先校验。\n- 工具页UI回归：恢复为左右分栏，提升可读性和美观度。\n- 工作台刷新丢失进度：localStorage持久化jobId和状态，刷新后自动拉取结果。\n- 高API成本风险：模型降级、mock模式、输入限制、开发环境禁用AI。\n\n## 5. 流程、规则、标准与最佳实践\n- 开发环境一律DISABLE_AI_IN_DEV=true，防止意外消耗。\n- 所有API必须有mock能力和单元测试。\n- 前端所有输入都要有长度限制和用户友好提示。\n- UI设计遵循现代深色风格，分栏布局优先。\n- 状态管理要支持断点恢复和异常处理。\n- 文档与知识沉淀要及时更新，形成团队知识库。\n\n## 6. 高效对话模板与Prompts\n- 角色设定：你是我的联合创始人、全栈架构师、产品经理、LLM专家、PKM专家、SEO专家、资深网虫和blog作家。\n- 需求描述模板：现在我们要实现xxx功能，目标是xxx，要求xxx。请你一步步分析、设计、实现，并严格自查，确保一次性做对。\n- 复盘与知识管理模板：请你对本次开发过程进行全面复盘，输出架构、流程、标准、问题与解决方案、最佳实践、知识沉淀等文档，并提出改进建议。\n\n## 7. 差距分析与改进建议\n- mock模式下输入校验一度失效，说明流程设计上要始终优先用户输入校验，不能因开发便利牺牲用户体验。\n- UI回归问题说明前端改动要有回归测试，UI/UX标准要文档化。\n- 工作台状态丢失说明状态持久化和异常处理要全流程覆盖。\n- 所有API和前端输入校验逻辑必须单元测试覆盖，防止mock/真实分支不一致。\n- UI/UX标准文档化，每次改动都要对照标准回归。\n- 知识管理流程固化，每次复盘都要输出知识卡片，沉淀到团队知识库。\n- 与AI助手对话要结构化、目标导向、可追溯，避免模糊沟通。\n\n---\n\n# NotesOrganizer 第二阶段完成总结\n\n## 🎯 任务目标\n将NotesOrganizer从\"内容灯塔\"升级为\"AI工作台\"，交付核心的\"上传ZIP→AI分析→下载ZIP\"功能，建立我们在AI笔记整理领域的技术壁垒。\n\n## ✅ 已完成的核心功能\n\n### 1. 智能模型路由系统\n- **文件**: `lib/ai/model-router.ts`\n- **功能**: 根据任务类型自动选择最优AI模型\n- **支持模型**: Claude 3.5 Sonnet, GPT-4o, Claude 3 Haiku, GPT-3.5 Turbo\n- **智能特性**: \n  - 任务复杂度自动判断\n  - 成本优化\n  - 失败自动回退\n\n### 2. 核心AI分析引擎\n- **文件**: `lib/ai/note-analyzer.ts`\n- **功能**: 完整的笔记知识库分析流水线\n- **分析能力**:\n  - 单篇笔记深度分析（标题、摘要、主题、标签、关键点）\n  - 智能连接建议\n  - 知识图谱构建\n  - 健康度评分报告\n\n### 3. 强大的后端API系统\n- **上传API**: `/api/project/upload` - 支持ZIP文件上传和验证\n- **状态API**: `/api/project/[id]/status` - 实时任务进度追踪\n- **结果API**: `/api/project/[id]/results` - 分析结果获取和下载\n\n### 4. 现代化的前端工作台\n- **文件**: `app/workbench/page.tsx`\n- **特性**:\n  - 拖拽上传界面\n  - 实时进度显示\n  - 美观的分析结果展示\n  - 响应式设计\n  - 优雅的错误处理\n\n### 5. 开发环境支持\n- **Mock KV存储**: `lib/kv-mock.ts` - 本地开发无需依赖外部服务\n- **环境自适应**: 开发环境自动使用Mock，生产环境使用Vercel KV\n- **TypeScript配置**: 升级到支持现代语法\n\n## 🧪 测试验证\n\n### 成功测试的功能\n1. ✅ ZIP文件上传和验证\n2. ✅ Markdown文件解析和提取\n3. ✅ 任务状态实时跟踪\n4. ✅ AI模型自动选择\n5. ✅ 异步处理架构\n6. ✅ 前端界面加载和交互\n\n### 测试结果\n- **上传**: 成功上传3个markdown文件的ZIP包\n- **处理**: AI分析流程正常运行\n- **进度**: 实时状态更新正常工作\n- **完成**: 任务成功完成到100%\n\n## 🏗️ 技术架构优势\n\n### 1. 可扩展性\n- 模块化AI处理引擎\n- 插件式模型路由\n- 异步处理架构\n\n### 2. 成本优化\n- 智能模型选择降低API成本\n- 任务自动过期管理\n- 高效的数据存储\n\n### 3. 用户体验\n- 直观的拖拽上传\n- 实时进度反馈\n- 详细的结果展示\n\n### 4. 开发体验\n- 完整的TypeScript支持\n- 本地开发Mock系统\n- 清晰的错误处理\n\n## 🚀 技术栈整合\n\n### 已集成的技术\n- **Next.js 14**: App Router, API Routes\n- **OpenRouter**: 统一AI模型接口\n- **TypeScript**: 类型安全\n- **Tailwind CSS**: 现代UI样式\n- **JSZip**: ZIP文件处理\n- **Vercel KV**: 云端键值存储\n- **React Hooks**: 状态管理\n\n### 新增依赖\n```json\n{\n  \"jszip\": \"^3.10.1\",\n  \"uuid\": \"^9.0.1\",\n  \"@vercel/kv\": \"^1.0.1\",\n  \"reactflow\": \"^11.11.0\",\n  \"@types/uuid\": \"^9.0.7\"\n}\n```\n\n## 📊 性能指标\n\n### 处理能力\n- **文件大小限制**: 50MB\n- **支持格式**: .md, .markdown\n- **并发处理**: 异步任务队列\n- **超时设置**: 合理的处理时限\n\n### 成本控制\n- **模型选择**: 基于任务复杂度自动优化\n- **存储管理**: 自动过期清理\n- **API使用**: 智能重试和回退\n\n## 🎨 用户界面亮点\n\n### 工作台设计\n- **渐变背景**: 专业的视觉效果\n- **图标系统**: Lucide React图标库\n- **状态反馈**: 实时进度条和消息\n- **响应式**: 完美适配各种设备\n\n### 交互体验\n- **拖拽上传**: 直观的文件上传方式\n- **进度显示**: 详细的处理阶段说明\n- **结果展示**: 结构化的分析结果\n- **错误处理**: 友好的错误提示\n\n## 🔜 下一步规划\n\n### 即将优化的功能\n1. **ZIP下载**: 完善处理后文件的下载功能\n2. **结果持久化**: 优化长期结果存储\n3. **批量处理**: 支持更大规模的笔记库\n4. **可视化**: 知识图谱的交互式展示\n\n### 第三阶段准备\n1. **桌面应用**: Tauri集成规划\n2. **多模态支持**: 图片、视频处理能力\n3. **API开放**: 第三方集成接口\n4. **高级分析**: 更深度的洞察报告\n\n## 💎 核心竞争优势\n\n### 技术优势\n1. **智能模型路由**: 自动优化成本和效果\n2. **异步处理**: 支持大规模并发\n3. **模块化设计**: 易于扩展和维护\n4. **本地化友好**: 支持桌面端发展\n\n### 产品优势\n1. **零配置**: 用户无需复杂设置\n2. **隐私保护**: 本地处理选项\n3. **智能分析**: 深度AI洞察\n4. **美观界面**: 专业的设计质量\n\n## 🏆 里程碑成就\n\n✅ **第二阶段核心目标100%完成**\n- AI工作台成功上线\n- 核心处理流程全部打通\n- 用户界面达到生产质量\n- 技术架构具备扩展性\n\n**我们已经成功从\"灯塔\"进化为\"工作台\"，为用户提供了真正的AI驱动知识整理能力！**\n\n---\n\n*Generated on 2025-01-03 by NotesOrganizer AI Development Team*\n\n# 第二阶段执行摘要 - AI工作台成本优化与商业化准备\n\n## 📋 执行概况\n\n**执行日期**: 2025年7月3日  \n**阶段目标**: 将产品从\"可用\"升级到\"惊艳\"，建立完善的成本控制体系，为商业化做好准备  \n**核心成果**: 99%成本削减 + 用户体验大幅提升 + 商业化基础设施就绪\n\n---\n\n## ✅ 第一轮：成本优化与风险控制 (已完成)\n\n### 🎯 成本控制优化\n\n**目标达成情况:**\n- ✅ 小工具成本: **从$0.003降至<$0.0001** (减少96.7%)\n- ✅ Workbench成本: **从$0.375降至<$0.30** (减少20% + 严格限制)\n- ✅ 新增实时成本监控和日志记录\n\n**核心优化措施:**\n1. **模型路由升级**: \n   - 免费工具统一使用Claude 3 Haiku ($0.25/$1.25)\n   - Workbench智能选择：复杂分析用Claude 3.5 Sonnet，其他用更经济选项\n   - 新增`isFreeTool`标记，为免费工具设置150 token严格限制\n\n2. **严格限制体系**:\n   - 最大笔记数: 100篇\n   - 单篇笔记限制: 50KB\n   - 总内容限制: 200KB\n   - ZIP文件限制: 5MB (已有)\n\n3. **成本监控**:\n   - 每次API调用记录实际成本\n   - 上传时预估处理成本\n   - 实时成本警报系统\n\n### 🔧 技术改进\n\n**已实现:**\n- ✅ 更新ModelRouter，支持基于任务类型的智能模型选择\n- ✅ 为所有小工具API添加成本优化标记\n- ✅ 增强project-upload.ts的验证逻辑\n- ✅ 前端添加清晰的限制说明界面\n- ✅ 优化首页转化路径，主CTA指向工作台\n\n---\n\n## 🚀 第二轮：内测、优化与发布准备\n\n### 📋 内测计划 (第3-4周)\n\n#### **阶段一: 内部压力测试** (3天)\n**目标**: 验证成本控制和系统稳定性\n\n**测试清单:**\n- [ ] **成本验证**: \n  - 20次小工具调用，验证成本<$0.002总计\n  - 5次Workbench完整分析，验证成本<$1.50总计\n  - 边界测试：上传100篇、50KB单篇的最大负载\n- [ ] **功能验证**:\n  - ZIP上传/解压/验证流程\n  - AI分析质量检查\n  - 知识图谱生成准确性\n  - 下载功能完整性\n- [ ] **UI/UX验证**:\n  - 响应式设计在多设备测试\n  - 错误处理和用户反馈\n  - 加载状态和进度指示\n\n#### **阶段二: 选择性beta测试** (1周)\n**目标**: 真实用户场景验证\n\n**beta用户招募策略:**\n- 从现有博客读者中筛选10-15个活跃PKM用户\n- 通过Twitter/LinkedIn招募3-5个意见领袖\n- 每个beta用户免费试用7天，但需承诺提供详细反馈\n\n**反馈收集:**\n- 结构化问卷调研\n- 1对1深度访谈(30分钟/人)\n- 产品使用行为分析\n\n**关键指标:**\n- 上传成功率 >95%\n- 用户满意度 >4.2/5\n- 功能完成率 >80%\n- 推荐意愿 >70%\n\n#### **阶段三: 公开测试** (1周)\n**目标**: 大规模用户负载测试\n\n**发布策略:**\n- 软发布：仅通过现有渠道宣布\n- 监控服务器性能和成本\n- 每日活跃用户限制在50人以内\n- 收集产品改进建议\n\n### 🎨 用户体验优化 (持续进行)\n\n#### **上传体验升级**\n**现状**: 基础拖拽功能 ⚠️ 需要改进  \n**优化方案**:\n- [ ] **视觉反馈增强**:\n  - 添加拖拽时的动画效果\n  - 更丰富的上传进度指示\n  - 文件验证的实时反馈\n- [ ] **错误处理优化**:\n  - 更友好的错误信息\n  - 具体的修复建议\n  - 快速重试机制\n\n#### **处理可视化升级**\n**现状**: 基础进度条 ⚠️ 需要改进  \n**优化方案**:\n- [ ] **\"知识仪表盘\"打造**:\n  - 动态显示正在分析的笔记名称\n  - 实时展示发现的主题和连接\n  - 有趣的洞察预览（\"发现15个孤岛笔记\"）\n- [ ] **处理状态可视化**:\n  - 步骤化进度展示\n  - 预计剩余时间\n  - 当前处理状态说明\n\n#### **结果展示升级**\n**现状**: 基础功能已有 ⚠️ 需要美化  \n**优化方案**:\n- [ ] **交互式知识图谱优化**:\n  - 拖拽、缩放、点击交互\n  - 节点高亮和筛选\n  - 图谱导出为图片功能\n- [ ] **结构化列表改进**:\n  - 搜索和筛选功能\n  - 标签云展示\n  - 笔记预览面板\n\n### 💰 商业化基础建设\n\n#### **付费计划设计**\n基于竞品调研，我们的定价策略:\n\n**免费版** (已实现):\n- 100篇笔记/次上传\n- 5MB文件限制\n- 基础AI分析\n- 标准知识图谱\n\n**专业版** ($15/月):\n- 无限笔记数量\n- 50MB文件限制\n- 高级AI模型(GPT-4, Claude 3.5 Sonnet优先)\n- 高级图谱可视化\n- 优先处理队列\n- 历史记录保存(30天)\n\n**团队版** ($45/月):\n- 专业版所有功能\n- 5个用户席位\n- 团队共享知识库\n- API访问权限\n- 90天历史记录\n\n#### **转化漏斗优化**\n- [ ] **限制触达时机优化**: 在用户体验到价值后再显示升级提示\n- [ ] **价值展示**: 对比免费版vs付费版的具体差异\n- [ ] **紧迫感营造**: 限时折扣或早鸟优惠\n\n### 📊 关键指标追踪\n\n#### **技术指标**\n- [ ] 平均响应时间 <2秒\n- [ ] 上传成功率 >98%\n- [ ] AI分析准确率 >85%\n- [ ] 系统可用性 >99.5%\n\n#### **用户指标**\n- [ ] 用户激活率(完成首次分析) >60%\n- [ ] 日活跃用户 50-100人\n- [ ] 用户留存率(7天) >30%\n- [ ] Net Promoter Score >40\n\n#### **商业指标**\n- [ ] 免费转付费转化率 >5%\n- [ ] 平均获客成本 <$10\n- [ ] 用户生命周期价值 >$50\n- [ ] 月度经常性收入(MRR)目标 $1,000\n\n---\n\n## 🎯 第三阶段预规划\n\n### **核心功能扩展**\n1. **AI助手对话**: 用户可以与自己的知识库对话\n2. **自动笔记生成**: 基于用户输入的主题生成草稿\n3. **协作功能**: 团队共享和协作编辑\n4. **高级集成**: Obsidian插件、Notion集成等\n\n### **商业化深化**\n1. **企业版开发**: 私有部署、SSO、高级安全\n2. **API商业化**: 开发者生态建设\n3. **合作伙伴计划**: 与PKM工具厂商合作\n\n### **市场扩张**\n1. **内容营销升级**: 更多高质量PKM内容\n2. **社区建设**: Discord/Reddit社区\n3. **影响者合作**: 与PKM领域KOL合作\n\n---\n\n## ✅ 检查清单\n\n### **Sprint 1: 成本优化** ✅ 完成\n- [x] ModelRouter成本优化\n- [x] 小工具API成本控制  \n- [x] Workbench限制实施\n- [x] 前端限制说明\n- [x] 首页转化优化\n\n### **Sprint 2: 内测准备** 🔄 进行中\n- [ ] 内部压力测试\n- [ ] Beta用户招募\n- [ ] 反馈收集系统\n- [ ] 监控面板搭建\n\n### **Sprint 3: 用户体验优化** 📋 待开始\n- [ ] 上传体验升级\n- [ ] 处理可视化改进\n- [ ] 结果展示优化\n- [ ] 移动端适配\n\n### **Sprint 4: 商业化准备** 📋 待开始\n- [ ] 付费计划开发\n- [ ] 支付集成\n- [ ] 用户管理系统\n- [ ] 转化漏斗优化\n\n---\n\n**项目经理签名**: Claude (AI联合创始人)  \n**最后更新**: 2025年7月3日",
+          "analysis": {
+            "title": "STAGE2 SUMMARY",
+            "summary": "This is a mock summary generated for development testing.",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "tags": [
+              "#dev",
+              "#test",
+              "#mock"
+            ],
+            "keyPoints": [
+              "Point 1",
+              "Point 2",
+              "Point 3"
+            ],
+            "emotionalTone": "neutral",
+            "readingTime": 6,
+            "complexity": "medium"
+          },
+          "suggestedLinks": [],
+          "enhancedContent": "# NotesOrganizer STAGE2 阶段性复盘与知识沉淀（2025-07-03）\n\n---\n\n## 1. 代码现状与架构检视\n- 前端：Next.js 14 + App Router，分主站内容、工具页、工作台三大模块，UI美观大气。\n- 后端：API路由分免费工具、项目核心、等待名单等。\n- AI能力：lib/ai/model-router.ts实现智能模型路由，自动切换与成本优化。\n- 分析引擎：lib/ai/note-analyzer.ts实现完整笔记AI分析流程，支持mock数据。\n- KV存储：支持Vercel KV与本地mock，开发/生产环境无缝切换。\n- 测试：API端点均有Vitest单元测试，mock依赖，保证健壮性。\n- 文档：docs/目录下有架构、部署、流程等文档，STAGE2_SUMMARY.md有阶段性总结。\n\n## 2. 主要决策与执行回顾\n- 三阶段战略：Lighthouse→Workbench→Observatory。\n- 产品定位：专注\"知识库整理\"垂直场景，强调智能结构化、隐私友好、极致体验。\n- 技术原则：一次性做对，高质量、快交付、低成本、可扩展。\n- AI模型路由：OpenRouter聚合多模型，自动选择最优模型。\n- API设计：所有AI相关API均有mock模式，开发环境不消耗额度。\n- 输入限制：免费工具2000字上限，防止滥用。\n- 状态管理：工作台任务全流程状态可追踪，支持断点恢复。\n\n## 3. 设计与实现对比分析\n| 设计目标                | 实现现状                | 差距与原因           |\n|-------------------------|-------------------------|----------------------|\n| 免费工具输入限制提示    | 已实现（最新修复）      | mock模式下曾失效，已修正 |\n| 工具页UI美观分栏        | 已实现                  | 一度回归为上下，已恢复 |\n| 工作台状态持久化        | 已实现                  | 早期刷新丢失，已修复   |\n| AI模型智能切换          | 已实现                  | -                    |\n| 本地开发零成本          | 已实现                  | -                    |\n| API单元测试覆盖         | 已实现                  | -                    |\n\n## 4. 问题与解决方案知识卡片\n- mock模式下输入校验失效：将输入校验逻辑提前，无论mock还是真实AI都先校验。\n- 工具页UI回归：恢复为左右分栏，提升可读性和美观度。\n- 工作台刷新丢失进度：localStorage持久化jobId和状态，刷新后自动拉取结果。\n- 高API成本风险：模型降级、mock模式、输入限制、开发环境禁用AI。\n\n## 5. 流程、规则、标准与最佳实践\n- 开发环境一律DISABLE_AI_IN_DEV=true，防止意外消耗。\n- 所有API必须有mock能力和单元测试。\n- 前端所有输入都要有长度限制和用户友好提示。\n- UI设计遵循现代深色风格，分栏布局优先。\n- 状态管理要支持断点恢复和异常处理。\n- 文档与知识沉淀要及时更新，形成团队知识库。\n\n## 6. 高效对话模板与Prompts\n- 角色设定：你是我的联合创始人、全栈架构师、产品经理、LLM专家、PKM专家、SEO专家、资深网虫和blog作家。\n- 需求描述模板：现在我们要实现xxx功能，目标是xxx，要求xxx。请你一步步分析、设计、实现，并严格自查，确保一次性做对。\n- 复盘与知识管理模板：请你对本次开发过程进行全面复盘，输出架构、流程、标准、问题与解决方案、最佳实践、知识沉淀等文档，并提出改进建议。\n\n## 7. 差距分析与改进建议\n- mock模式下输入校验一度失效，说明流程设计上要始终优先用户输入校验，不能因开发便利牺牲用户体验。\n- UI回归问题说明前端改动要有回归测试，UI/UX标准要文档化。\n- 工作台状态丢失说明状态持久化和异常处理要全流程覆盖。\n- 所有API和前端输入校验逻辑必须单元测试覆盖，防止mock/真实分支不一致。\n- UI/UX标准文档化，每次改动都要对照标准回归。\n- 知识管理流程固化，每次复盘都要输出知识卡片，沉淀到团队知识库。\n- 与AI助手对话要结构化、目标导向、可追溯，避免模糊沟通。\n\n---\n\n# NotesOrganizer 第二阶段完成总结\n\n## 🎯 任务目标\n将NotesOrganizer从\"内容灯塔\"升级为\"AI工作台\"，交付核心的\"上传ZIP→AI分析→下载ZIP\"功能，建立我们在AI笔记整理领域的技术壁垒。\n\n## ✅ 已完成的核心功能\n\n### 1. 智能模型路由系统\n- **文件**: `lib/ai/model-router.ts`\n- **功能**: 根据任务类型自动选择最优AI模型\n- **支持模型**: Claude 3.5 Sonnet, GPT-4o, Claude 3 Haiku, GPT-3.5 Turbo\n- **智能特性**: \n  - 任务复杂度自动判断\n  - 成本优化\n  - 失败自动回退\n\n### 2. 核心AI分析引擎\n- **文件**: `lib/ai/note-analyzer.ts`\n- **功能**: 完整的笔记知识库分析流水线\n- **分析能力**:\n  - 单篇笔记深度分析（标题、摘要、主题、标签、关键点）\n  - 智能连接建议\n  - 知识图谱构建\n  - 健康度评分报告\n\n### 3. 强大的后端API系统\n- **上传API**: `/api/project/upload` - 支持ZIP文件上传和验证\n- **状态API**: `/api/project/[id]/status` - 实时任务进度追踪\n- **结果API**: `/api/project/[id]/results` - 分析结果获取和下载\n\n### 4. 现代化的前端工作台\n- **文件**: `app/workbench/page.tsx`\n- **特性**:\n  - 拖拽上传界面\n  - 实时进度显示\n  - 美观的分析结果展示\n  - 响应式设计\n  - 优雅的错误处理\n\n### 5. 开发环境支持\n- **Mock KV存储**: `lib/kv-mock.ts` - 本地开发无需依赖外部服务\n- **环境自适应**: 开发环境自动使用Mock，生产环境使用Vercel KV\n- **TypeScript配置**: 升级到支持现代语法\n\n## 🧪 测试验证\n\n### 成功测试的功能\n1. ✅ ZIP文件上传和验证\n2. ✅ Markdown文件解析和提取\n3. ✅ 任务状态实时跟踪\n4. ✅ AI模型自动选择\n5. ✅ 异步处理架构\n6. ✅ 前端界面加载和交互\n\n### 测试结果\n- **上传**: 成功上传3个markdown文件的ZIP包\n- **处理**: AI分析流程正常运行\n- **进度**: 实时状态更新正常工作\n- **完成**: 任务成功完成到100%\n\n## 🏗️ 技术架构优势\n\n### 1. 可扩展性\n- 模块化AI处理引擎\n- 插件式模型路由\n- 异步处理架构\n\n### 2. 成本优化\n- 智能模型选择降低API成本\n- 任务自动过期管理\n- 高效的数据存储\n\n### 3. 用户体验\n- 直观的拖拽上传\n- 实时进度反馈\n- 详细的结果展示\n\n### 4. 开发体验\n- 完整的TypeScript支持\n- 本地开发Mock系统\n- 清晰的错误处理\n\n## 🚀 技术栈整合\n\n### 已集成的技术\n- **Next.js 14**: App Router, API Routes\n- **OpenRouter**: 统一AI模型接口\n- **TypeScript**: 类型安全\n- **Tailwind CSS**: 现代UI样式\n- **JSZip**: ZIP文件处理\n- **Vercel KV**: 云端键值存储\n- **React Hooks**: 状态管理\n\n### 新增依赖\n```json\n{\n  \"jszip\": \"^3.10.1\",\n  \"uuid\": \"^9.0.1\",\n  \"@vercel/kv\": \"^1.0.1\",\n  \"reactflow\": \"^11.11.0\",\n  \"@types/uuid\": \"^9.0.7\"\n}\n```\n\n## 📊 性能指标\n\n### 处理能力\n- **文件大小限制**: 50MB\n- **支持格式**: .md, .markdown\n- **并发处理**: 异步任务队列\n- **超时设置**: 合理的处理时限\n\n### 成本控制\n- **模型选择**: 基于任务复杂度自动优化\n- **存储管理**: 自动过期清理\n- **API使用**: 智能重试和回退\n\n## 🎨 用户界面亮点\n\n### 工作台设计\n- **渐变背景**: 专业的视觉效果\n- **图标系统**: Lucide React图标库\n- **状态反馈**: 实时进度条和消息\n- **响应式**: 完美适配各种设备\n\n### 交互体验\n- **拖拽上传**: 直观的文件上传方式\n- **进度显示**: 详细的处理阶段说明\n- **结果展示**: 结构化的分析结果\n- **错误处理**: 友好的错误提示\n\n## 🔜 下一步规划\n\n### 即将优化的功能\n1. **ZIP下载**: 完善处理后文件的下载功能\n2. **结果持久化**: 优化长期结果存储\n3. **批量处理**: 支持更大规模的笔记库\n4. **可视化**: 知识图谱的交互式展示\n\n### 第三阶段准备\n1. **桌面应用**: Tauri集成规划\n2. **多模态支持**: 图片、视频处理能力\n3. **API开放**: 第三方集成接口\n4. **高级分析**: 更深度的洞察报告\n\n## 💎 核心竞争优势\n\n### 技术优势\n1. **智能模型路由**: 自动优化成本和效果\n2. **异步处理**: 支持大规模并发\n3. **模块化设计**: 易于扩展和维护\n4. **本地化友好**: 支持桌面端发展\n\n### 产品优势\n1. **零配置**: 用户无需复杂设置\n2. **隐私保护**: 本地处理选项\n3. **智能分析**: 深度AI洞察\n4. **美观界面**: 专业的设计质量\n\n## 🏆 里程碑成就\n\n✅ **第二阶段核心目标100%完成**\n- AI工作台成功上线\n- 核心处理流程全部打通\n- 用户界面达到生产质量\n- 技术架构具备扩展性\n\n**我们已经成功从\"灯塔\"进化为\"工作台\"，为用户提供了真正的AI驱动知识整理能力！**\n\n---\n\n*Generated on 2025-01-03 by NotesOrganizer AI Development Team*\n\n# 第二阶段执行摘要 - AI工作台成本优化与商业化准备\n\n## 📋 执行概况\n\n**执行日期**: 2025年7月3日  \n**阶段目标**: 将产品从\"可用\"升级到\"惊艳\"，建立完善的成本控制体系，为商业化做好准备  \n**核心成果**: 99%成本削减 + 用户体验大幅提升 + 商业化基础设施就绪\n\n---\n\n## ✅ 第一轮：成本优化与风险控制 (已完成)\n\n### 🎯 成本控制优化\n\n**目标达成情况:**\n- ✅ 小工具成本: **从$0.003降至<$0.0001** (减少96.7%)\n- ✅ Workbench成本: **从$0.375降至<$0.30** (减少20% + 严格限制)\n- ✅ 新增实时成本监控和日志记录\n\n**核心优化措施:**\n1. **模型路由升级**: \n   - 免费工具统一使用Claude 3 Haiku ($0.25/$1.25)\n   - Workbench智能选择：复杂分析用Claude 3.5 Sonnet，其他用更经济选项\n   - 新增`isFreeTool`标记，为免费工具设置150 token严格限制\n\n2. **严格限制体系**:\n   - 最大笔记数: 100篇\n   - 单篇笔记限制: 50KB\n   - 总内容限制: 200KB\n   - ZIP文件限制: 5MB (已有)\n\n3. **成本监控**:\n   - 每次API调用记录实际成本\n   - 上传时预估处理成本\n   - 实时成本警报系统\n\n### 🔧 技术改进\n\n**已实现:**\n- ✅ 更新ModelRouter，支持基于任务类型的智能模型选择\n- ✅ 为所有小工具API添加成本优化标记\n- ✅ 增强project-upload.ts的验证逻辑\n- ✅ 前端添加清晰的限制说明界面\n- ✅ 优化首页转化路径，主CTA指向工作台\n\n---\n\n## 🚀 第二轮：内测、优化与发布准备\n\n### 📋 内测计划 (第3-4周)\n\n#### **阶段一: 内部压力测试** (3天)\n**目标**: 验证成本控制和系统稳定性\n\n**测试清单:**\n- [ ] **成本验证**: \n  - 20次小工具调用，验证成本<$0.002总计\n  - 5次Workbench完整分析，验证成本<$1.50总计\n  - 边界测试：上传100篇、50KB单篇的最大负载\n- [ ] **功能验证**:\n  - ZIP上传/解压/验证流程\n  - AI分析质量检查\n  - 知识图谱生成准确性\n  - 下载功能完整性\n- [ ] **UI/UX验证**:\n  - 响应式设计在多设备测试\n  - 错误处理和用户反馈\n  - 加载状态和进度指示\n\n#### **阶段二: 选择性beta测试** (1周)\n**目标**: 真实用户场景验证\n\n**beta用户招募策略:**\n- 从现有博客读者中筛选10-15个活跃PKM用户\n- 通过Twitter/LinkedIn招募3-5个意见领袖\n- 每个beta用户免费试用7天，但需承诺提供详细反馈\n\n**反馈收集:**\n- 结构化问卷调研\n- 1对1深度访谈(30分钟/人)\n- 产品使用行为分析\n\n**关键指标:**\n- 上传成功率 >95%\n- 用户满意度 >4.2/5\n- 功能完成率 >80%\n- 推荐意愿 >70%\n\n#### **阶段三: 公开测试** (1周)\n**目标**: 大规模用户负载测试\n\n**发布策略:**\n- 软发布：仅通过现有渠道宣布\n- 监控服务器性能和成本\n- 每日活跃用户限制在50人以内\n- 收集产品改进建议\n\n### 🎨 用户体验优化 (持续进行)\n\n#### **上传体验升级**\n**现状**: 基础拖拽功能 ⚠️ 需要改进  \n**优化方案**:\n- [ ] **视觉反馈增强**:\n  - 添加拖拽时的动画效果\n  - 更丰富的上传进度指示\n  - 文件验证的实时反馈\n- [ ] **错误处理优化**:\n  - 更友好的错误信息\n  - 具体的修复建议\n  - 快速重试机制\n\n#### **处理可视化升级**\n**现状**: 基础进度条 ⚠️ 需要改进  \n**优化方案**:\n- [ ] **\"知识仪表盘\"打造**:\n  - 动态显示正在分析的笔记名称\n  - 实时展示发现的主题和连接\n  - 有趣的洞察预览（\"发现15个孤岛笔记\"）\n- [ ] **处理状态可视化**:\n  - 步骤化进度展示\n  - 预计剩余时间\n  - 当前处理状态说明\n\n#### **结果展示升级**\n**现状**: 基础功能已有 ⚠️ 需要美化  \n**优化方案**:\n- [ ] **交互式知识图谱优化**:\n  - 拖拽、缩放、点击交互\n  - 节点高亮和筛选\n  - 图谱导出为图片功能\n- [ ] **结构化列表改进**:\n  - 搜索和筛选功能\n  - 标签云展示\n  - 笔记预览面板\n\n### 💰 商业化基础建设\n\n#### **付费计划设计**\n基于竞品调研，我们的定价策略:\n\n**免费版** (已实现):\n- 100篇笔记/次上传\n- 5MB文件限制\n- 基础AI分析\n- 标准知识图谱\n\n**专业版** ($15/月):\n- 无限笔记数量\n- 50MB文件限制\n- 高级AI模型(GPT-4, Claude 3.5 Sonnet优先)\n- 高级图谱可视化\n- 优先处理队列\n- 历史记录保存(30天)\n\n**团队版** ($45/月):\n- 专业版所有功能\n- 5个用户席位\n- 团队共享知识库\n- API访问权限\n- 90天历史记录\n\n#### **转化漏斗优化**\n- [ ] **限制触达时机优化**: 在用户体验到价值后再显示升级提示\n- [ ] **价值展示**: 对比免费版vs付费版的具体差异\n- [ ] **紧迫感营造**: 限时折扣或早鸟优惠\n\n### 📊 关键指标追踪\n\n#### **技术指标**\n- [ ] 平均响应时间 <2秒\n- [ ] 上传成功率 >98%\n- [ ] AI分析准确率 >85%\n- [ ] 系统可用性 >99.5%\n\n#### **用户指标**\n- [ ] 用户激活率(完成首次分析) >60%\n- [ ] 日活跃用户 50-100人\n- [ ] 用户留存率(7天) >30%\n- [ ] Net Promoter Score >40\n\n#### **商业指标**\n- [ ] 免费转付费转化率 >5%\n- [ ] 平均获客成本 <$10\n- [ ] 用户生命周期价值 >$50\n- [ ] 月度经常性收入(MRR)目标 $1,000\n\n---\n\n## 🎯 第三阶段预规划\n\n### **核心功能扩展**\n1. **AI助手对话**: 用户可以与自己的知识库对话\n2. **自动笔记生成**: 基于用户输入的主题生成草稿\n3. **协作功能**: 团队共享和协作编辑\n4. **高级集成**: Obsidian插件、Notion集成等\n\n### **商业化深化**\n1. **企业版开发**: 私有部署、SSO、高级安全\n2. **API商业化**: 开发者生态建设\n3. **合作伙伴计划**: 与PKM工具厂商合作\n\n### **市场扩张**\n1. **内容营销升级**: 更多高质量PKM内容\n2. **社区建设**: Discord/Reddit社区\n3. **影响者合作**: 与PKM领域KOL合作\n\n---\n\n## ✅ 检查清单\n\n### **Sprint 1: 成本优化** ✅ 完成\n- [x] ModelRouter成本优化\n- [x] 小工具API成本控制  \n- [x] Workbench限制实施\n- [x] 前端限制说明\n- [x] 首页转化优化\n\n### **Sprint 2: 内测准备** 🔄 进行中\n- [ ] 内部压力测试\n- [ ] Beta用户招募\n- [ ] 反馈收集系统\n- [ ] 监控面板搭建\n\n### **Sprint 3: 用户体验优化** 📋 待开始\n- [ ] 上传体验升级\n- [ ] 处理可视化改进\n- [ ] 结果展示优化\n- [ ] 移动端适配\n\n### **Sprint 4: 商业化准备** 📋 待开始\n- [ ] 付费计划开发\n- [ ] 支付集成\n- [ ] 用户管理系统\n- [ ] 转化漏斗优化\n\n---\n\n**项目经理签名**: Claude (AI联合创始人)  \n**最后更新**: 2025年7月3日"
+        }
+      ],
+      "knowledgeGraph": {
+        "nodes": [
+          {
+            "id": "00_constitution_md",
+            "title": "00 CONSTITUTION",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "centrality": 4.571536165848706,
+            "cluster": "development"
+          },
+          {
+            "id": "01_architecture_md",
+            "title": "01 ARCHITECTURE",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "centrality": 4.2933075409017185,
+            "cluster": "development"
+          },
+          {
+            "id": "02_deployment_md",
+            "title": "02 DEPLOYMENT",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "centrality": 0.294606235878333,
+            "cluster": "development"
+          },
+          {
+            "id": "03_workflow_and_standards_md",
+            "title": "03 WORKFLOW AND STANDARDS",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "centrality": 3.1395378440600075,
+            "cluster": "development"
+          },
+          {
+            "id": "sprint3_summary_md",
+            "title": "SPRINT3 SUMMARY",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "centrality": 0.4335073977721071,
+            "cluster": "development"
+          },
+          {
+            "id": "stage0_summary_md",
+            "title": "STAGE0 SUMMARY",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "centrality": 2.2832022663592024,
+            "cluster": "development"
+          },
+          {
+            "id": "stage1_summary_md",
+            "title": "STAGE1 SUMMARY",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "centrality": 0.754315416076744,
+            "cluster": "development"
+          },
+          {
+            "id": "stage2_summary_md",
+            "title": "STAGE2 SUMMARY",
+            "topics": [
+              "Development",
+              "Testing",
+              "Mock Data"
+            ],
+            "centrality": 1.1589803760421413,
+            "cluster": "development"
+          }
+        ],
+        "edges": [],
+        "clusters": [
+          {
+            "id": "development",
+            "name": "Development",
+            "description": "Development and testing notes",
+            "nodeCount": 8
+          }
+        ]
+      },
+      "healthReport": {
+        "overallScore": 75,
+        "insights": {
+          "knowledgeDistribution": {
+            "topTopics": [
+              {
+                "topic": "Development",
+                "count": 8,
+                "percentage": 100
+              }
+            ],
+            "coverage": "focused"
+          },
+          "connectionHealth": {
+            "connectedNotes": 0,
+            "isolatedNotes": 8,
+            "averageConnections": 0,
+            "strongClusters": []
+          },
+          "contentQuality": {
+            "averageLength": 3516,
+            "readabilityScore": 75,
+            "incompleteNotes": 0
+          },
+          "growthPattern": {
+            "recentActivity": "stable",
+            "stalenessWarning": [],
+            "suggestions": [
+              "This is mock data for development"
+            ]
+          }
+        },
+        "recommendations": [
+          {
+            "type": "connect",
+            "title": "Mock Recommendation",
+            "description": "This is a mock recommendation for development testing.",
+            "priority": "low",
+            "actionItems": [
+              "Test the system",
+              "Verify UI",
+              "Check functionality"
+            ]
+          }
+        ]
+      },
+      "stats": {
+        "totalNotes": 8,
+        "totalTokensProcessed": 1000,
+        "estimatedCost": 0.001,
+        "processingTime": 2000
+      }
+    },
+    "expires": 1751549720958
+  },
+  "job:status:d0668f13-5dba-46f7-a7c8-bd5230b64316": {
     "value": {
       "status": "COMPLETED",
-      "uploadTime": "2025-07-03T12:35:20.925Z",
+      "uploadTime": "2025-07-12T13:56:29.499Z",
       "fileName": "OK.zip",
       "zipBuffer": {
         "type": "Buffer",
@@ -23784,8 +24176,8 @@
           0
         ]
       },
-      "startTime": 1751546120925,
-      "lastUpdated": "2025-07-03T12:35:20.967Z",
+      "startTime": 1752328589499,
+      "lastUpdated": "2025-07-12T13:56:29.625Z",
       "currentStep": "Extracting notes...",
       "results": {
         "notes": [
@@ -24032,7 +24424,7 @@
                 "Testing",
                 "Mock Data"
               ],
-              "centrality": 4.571536165848706,
+              "centrality": 0.21952002965422213,
               "cluster": "development"
             },
             {
@@ -24043,7 +24435,7 @@
                 "Testing",
                 "Mock Data"
               ],
-              "centrality": 4.2933075409017185,
+              "centrality": 1.0440807662034968,
               "cluster": "development"
             },
             {
@@ -24054,7 +24446,7 @@
                 "Testing",
                 "Mock Data"
               ],
-              "centrality": 0.294606235878333,
+              "centrality": 0.7587105607785216,
               "cluster": "development"
             },
             {
@@ -24065,7 +24457,7 @@
                 "Testing",
                 "Mock Data"
               ],
-              "centrality": 3.1395378440600075,
+              "centrality": 4.550253738029527,
               "cluster": "development"
             },
             {
@@ -24076,7 +24468,7 @@
                 "Testing",
                 "Mock Data"
               ],
-              "centrality": 0.4335073977721071,
+              "centrality": 3.471541701872527,
               "cluster": "development"
             },
             {
@@ -24087,7 +24479,7 @@
                 "Testing",
                 "Mock Data"
               ],
-              "centrality": 2.2832022663592024,
+              "centrality": 2.61637023812228,
               "cluster": "development"
             },
             {
@@ -24098,7 +24490,7 @@
                 "Testing",
                 "Mock Data"
               ],
-              "centrality": 0.754315416076744,
+              "centrality": 1.4621958103649646,
               "cluster": "development"
             },
             {
@@ -24109,7 +24501,7 @@
                 "Testing",
                 "Mock Data"
               ],
-              "centrality": 1.1589803760421413,
+              "centrality": 2.977358306167744,
               "cluster": "development"
             }
           ],
@@ -24177,9 +24569,9 @@
         }
       }
     },
-    "expires": 1751549720969
+    "expires": 1752332189634
   },
-  "job:results:b1897339-252f-47fb-8f97-8d705c12b230": {
+  "job:results:d0668f13-5dba-46f7-a7c8-bd5230b64316": {
     "value": {
       "notes": [
         {
@@ -24425,7 +24817,7 @@
               "Testing",
               "Mock Data"
             ],
-            "centrality": 4.571536165848706,
+            "centrality": 0.21952002965422213,
             "cluster": "development"
           },
           {
@@ -24436,7 +24828,7 @@
               "Testing",
               "Mock Data"
             ],
-            "centrality": 4.2933075409017185,
+            "centrality": 1.0440807662034968,
             "cluster": "development"
           },
           {
@@ -24447,7 +24839,7 @@
               "Testing",
               "Mock Data"
             ],
-            "centrality": 0.294606235878333,
+            "centrality": 0.7587105607785216,
             "cluster": "development"
           },
           {
@@ -24458,7 +24850,7 @@
               "Testing",
               "Mock Data"
             ],
-            "centrality": 3.1395378440600075,
+            "centrality": 4.550253738029527,
             "cluster": "development"
           },
           {
@@ -24469,7 +24861,7 @@
               "Testing",
               "Mock Data"
             ],
-            "centrality": 0.4335073977721071,
+            "centrality": 3.471541701872527,
             "cluster": "development"
           },
           {
@@ -24480,7 +24872,7 @@
               "Testing",
               "Mock Data"
             ],
-            "centrality": 2.2832022663592024,
+            "centrality": 2.61637023812228,
             "cluster": "development"
           },
           {
@@ -24491,7 +24883,7 @@
               "Testing",
               "Mock Data"
             ],
-            "centrality": 0.754315416076744,
+            "centrality": 1.4621958103649646,
             "cluster": "development"
           },
           {
@@ -24502,7 +24894,7 @@
               "Testing",
               "Mock Data"
             ],
-            "centrality": 1.1589803760421413,
+            "centrality": 2.977358306167744,
             "cluster": "development"
           }
         ],
@@ -24569,6 +24961,6 @@
         "processingTime": 2000
       }
     },
-    "expires": 1751549720958
+    "expires": 1752332189615
   }
 }

@@ -1,4 +1,4 @@
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, FolderOpen, Search, Clock, Headphones } from "lucide-react";
 
 const painPoints = [
   "Notes scattered across 5 different apps.",
@@ -31,45 +31,61 @@ export default function PainPoints() {
             </p>
           </div>
           
-          <div className="flex flex-col h-96 items-center justify-center rounded-2xl bg-slate-800/50 border border-white/10 p-8">
-            <div className="flex w-full items-center justify-around">
-              {/* Left side: Scattered Notes */}
-              <div className="w-1/3 grid grid-cols-2 gap-2">
-                <div className="p-2 bg-gray-700 rounded-lg w-fit text-sm">📄</div>
-                <div className="p-2 bg-gray-700 rounded-lg w-fit mt-3 text-sm">🗒️</div>
-                <div className="p-2 bg-gray-700 rounded-lg w-fit ml-4 text-sm">📑</div>
-                <div className="p-2 bg-gray-700 rounded-lg w-fit mt-2 ml-1 text-sm">📋</div>
-                <div className="p-2 bg-gray-700 rounded-lg w-fit text-sm">📝</div>
-              </div>
+          {/* 简化的痛点可视化 */}
+          <div className="relative">
+            <div className="bg-slate-800/50 rounded-2xl border border-slate-700/50 p-8">
+              <h3 className="text-lg font-semibold text-white mb-6 text-center">The Knowledge Management Chaos</h3>
               
-              {/* Middle: Arrow */}
-              <div className="w-1/3 flex justify-center">
-                <svg width="64" height="32" viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-500">
-                  <path d="M2 16H62M62 16L46 2M62 16L46 30" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+              {/* 散乱的应用图标 */}
+              <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 text-center transform rotate-[-2deg]">
+                  <FolderOpen className="w-6 h-6 text-red-400 mx-auto mb-2" />
+                  <span className="text-xs text-red-300">Files App</span>
+                  <div className="text-[10px] text-gray-400 mt-1">127 notes</div>
+                </div>
+                <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-4 text-center transform rotate-[3deg]">
+                  <div className="w-6 h-6 bg-blue-400 rounded mx-auto mb-2 text-xs flex items-center justify-center text-white font-bold">N</div>
+                  <span className="text-xs text-blue-300">Notion</span>
+                  <div className="text-[10px] text-gray-400 mt-1">89 pages</div>
+                </div>
+                <div className="bg-purple-500/20 border border-purple-500/30 rounded-lg p-4 text-center transform rotate-[-1deg]">
+                  <div className="w-6 h-6 bg-purple-400 rounded mx-auto mb-2 text-xs flex items-center justify-center text-white font-bold">O</div>
+                  <span className="text-xs text-purple-300">Obsidian</span>
+                  <div className="text-[10px] text-gray-400 mt-1">203 notes</div>
+                </div>
+                <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4 text-center transform rotate-[2deg]">
+                  <div className="w-6 h-6 bg-green-400 rounded mx-auto mb-2 text-xs flex items-center justify-center text-white font-bold">E</div>
+                  <span className="text-xs text-green-300">Evernote</span>
+                  <div className="text-[10px] text-gray-400 mt-1">156 notes</div>
+                </div>
+                <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 text-center transform rotate-[-3deg]">
+                  <div className="w-6 h-6 bg-yellow-400 rounded mx-auto mb-2 text-xs flex items-center justify-center text-white font-bold">📝</div>
+                  <span className="text-xs text-yellow-300">Apple Notes</span>
+                  <div className="text-[10px] text-gray-400 mt-1">342 notes</div>
+                </div>
+                <div className="bg-orange-500/20 border border-orange-500/30 rounded-lg p-4 text-center transform rotate-[1deg]">
+                  <Headphones className="w-6 h-6 text-orange-400 mx-auto mb-2" />
+                  <span className="text-xs text-orange-300">Voice Memos</span>
+                  <div className="text-[10px] text-gray-400 mt-1">67 recordings</div>
+                </div>
               </div>
 
-              {/* Right side: Structured Knowledge */}
-              <div className="w-1/3 h-32 bg-gray-900/50 rounded-lg p-2 border border-white/10">
-                 <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    {/* Nodes */}
-                    <circle cx="20" cy="20" r="5" fill="#3b82f6" />
-                    <circle cx="80" cy="30" r="5" fill="#3b82f6" />
-                    <circle cx="50" cy="50" r="7" fill="#3b82f6" />
-                    <circle cx="30" cy="80" r="5" fill="#3b82f6" />
-                    <circle cx="70" cy="90" r="5" fill="#3b82f6" />
-
-                    {/* Connections */}
-                    <path d="M22 24 L46 46" stroke="#60a5fa" strokeWidth="1" strokeOpacity="0.5" />
-                    <path d="M54 48 L76 34" stroke="#60a5fa" strokeWidth="1" strokeOpacity="0.5" />
-                    <path d="M48 57 L34 76" stroke="#60a5fa" strokeWidth="1" strokeOpacity="0.5" />
-                    <path d="M53 55 L68 86" stroke="#60a5fa" strokeWidth="1" strokeOpacity="0.5" />
-                    <path d="M24 23 L78 28" stroke="#60a5fa" strokeWidth="1" strokeOpacity="0.2" />
-                    <path d="M23 78 L78 33" stroke="#60a5fa" strokeWidth="1" strokeOpacity="0.2" />
-                 </svg>
+              {/* 问题标签 */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                  <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                  <span className="text-sm text-gray-300">Can&apos;t find that important meeting note from last week</span>
+                </div>
+                <div className="flex items-center gap-3 bg-orange-500/10 border border-orange-500/20 rounded-lg p-3">
+                  <Search className="w-5 h-5 text-orange-400 flex-shrink-0" />
+                  <span className="text-sm text-gray-300">Search results in 5 different apps, no connections</span>
+                </div>
+                <div className="flex items-center gap-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
+                  <Clock className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                  <span className="text-sm text-gray-300">Spend more time organizing than actually thinking</span>
+                </div>
               </div>
             </div>
-            <p className="mt-8 text-sm text-gray-400 text-center">From scattered notes to a structured knowledge base.</p>
           </div>
         </div>
       </div>

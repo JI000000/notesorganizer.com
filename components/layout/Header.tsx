@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Network, Menu, X } from 'lucide-react';
+import { Network, Menu, X, ChevronDown } from 'lucide-react';
 
 const Header = () => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
 
   // Close menu on route change
   useEffect(() => {
@@ -29,15 +30,26 @@ const Header = () => {
     };
   }, [isMenuOpen]);
 
-
   const navLinks = [
     { href: '/knowledge-hub', label: 'Knowledge Hub' },
-    { href: '/tools', label: 'AI Tools' },
-    { href: '/workbench', label: 'AI Workbench' },
+    { 
+      href: '/tools', 
+      label: 'Tools', 
+      dropdown: [
+        { href: '/tools/summarizer', label: 'AI Note Summarizer' },
+        { href: '/tools/title-generator', label: 'AI Title Generator' },
+        { href: '/tools/tag-suggester', label: 'AI Tag Suggester' },
+        { href: '/tools/action-extractor', label: 'Action-Item Extractor' },
+        { href: '/workbench', label: 'AI Workbench' },
+        { href: '/collaboration-hub', label: 'Collaboration Hub' },
+        { href: '/research-notes', label: 'Research Notes' },
+      ]
+    },
   ];
 
   const handleLinkClick = () => {
     setIsMenuOpen(false);
+    setIsToolsDropdownOpen(false);
   }
 
   return (
@@ -53,6 +65,52 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-6">
             {navLinks.map((link) => {
               const isActive = pathname.startsWith(link.href);
+              
+              if (link.dropdown) {
+                return (
+                  <div key={link.href} className="relative">
+                    <button
+                      onMouseEnter={() => setIsToolsDropdownOpen(true)}
+                      onMouseLeave={() => setIsToolsDropdownOpen(false)}
+                      className={`flex items-center gap-1 transition-colors ${
+                        isActive || pathname.startsWith('/workbench') || pathname.startsWith('/collaboration-hub') || pathname.startsWith('/research-notes') || pathname.startsWith('/tools/')
+                          ? 'text-white font-semibold'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      {link.label}
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                    
+                    {/* Dropdown Menu */}
+                    <div 
+                      className={`absolute top-full left-0 mt-2 w-48 bg-slate-800 rounded-lg shadow-xl border border-slate-700 transition-all duration-200 ${
+                        isToolsDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                      }`}
+                      onMouseEnter={() => setIsToolsDropdownOpen(true)}
+                      onMouseLeave={() => setIsToolsDropdownOpen(false)}
+                    >
+                      {link.dropdown.map((dropdownItem) => {
+                        const isDropdownActive = pathname === dropdownItem.href;
+                        return (
+                          <Link
+                            key={dropdownItem.href}
+                            href={dropdownItem.href}
+                            className={`block px-4 py-3 text-sm transition-colors border-b border-slate-700/50 last:border-b-0 ${
+                              isDropdownActive
+                                ? 'text-white font-semibold bg-blue-500/10'
+                                : 'text-gray-300 hover:text-white hover:bg-slate-700/50'
+                            }`}
+                          >
+                            {dropdownItem.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              }
+              
               return (
                 <Link
                   key={link.href}
@@ -97,8 +155,35 @@ const Header = () => {
         </div>
         <div className="flex flex-col text-lg mt-8">
           {navLinks.map((link) => {
-             const isActive = pathname.startsWith(link.href);
-             return (
+            if (link.dropdown) {
+              return (
+                <div key={`mobile-${link.href}`}>
+                  <div className="block w-full text-left p-4 border-b border-white/10 text-gray-300 font-semibold">
+                    {link.label}
+                  </div>
+                  {link.dropdown.map((dropdownItem) => {
+                    const isDropdownActive = pathname === dropdownItem.href;
+                    return (
+                      <Link
+                        key={`mobile-${dropdownItem.href}`}
+                        href={dropdownItem.href}
+                        onClick={handleLinkClick}
+                        className={`block w-full text-left pl-8 pr-4 py-3 border-b border-white/10 transition-colors ${
+                          isDropdownActive
+                            ? 'text-white font-semibold bg-blue-500/10'
+                            : 'text-gray-400 hover:bg-white/5'
+                        }`}
+                      >
+                        {dropdownItem.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              );
+            }
+            
+            const isActive = pathname.startsWith(link.href);
+            return (
               <Link
                 key={`mobile-${link.href}`}
                 href={link.href}

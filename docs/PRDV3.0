@@ -1,0 +1,970 @@
+我来为你们制定基于现有实现的敏捷开发PRD文档。首先让我深入了解现有的代码结构和功能实现。
+Read file: docs/00_CONSTITUTION.md
+
+Read file: docs/01_ARCHITECTURE.md
+
+Read file: components/sections/Hero.tsx
+
+Read file: components/sections/Toolkit.tsx
+
+Read file: app/workbench/page.tsx
+
+# NotesOrganizer.com 产品升级需求文档 (PRD) V3.0
+
+**版本:** 3.0  
+**日期:** 2025年1月21日  
+**作者:** 联合创始人团队  
+**状态:** 已批准执行  
+
+## 1. 产品概述 (Product Overview)
+
+基于现有 NotesOrganizer.com 的成功架构，我们将其升级为智能知识洞察平台，专注于个人知识管理(PKM)领域，满足用户对可视化协作和专业研究工具的需求。
+
+### 核心价值主张升级
+- **现有优势保持**: AI驱动的笔记整理和知识提取
+- **新增价值**: 可视化知识图谱和协作工具
+- **目标扩展**: 从个人工具升级为团队协作平台
+
+### 基于搜索意图的功能定位
+**目标用户搜索意图分析:**
+- **Post-it Notes** → 数字化便利贴协作工具
+- **Field Notes** → 专业研究笔记整理系统
+- **Organize Notes** → 智能笔记结构化工具
+
+## 2. 现有架构优势分析
+
+### ✅ 保留的核心优势
+- **技术栈**: Next.js 14 + TypeScript + Tailwind CSS
+- **AI集成**: OpenRouter多模型支持，成本优化
+- **组件化**: 良好的组件分离和复用性
+- **响应式设计**: 优秀的移动端适配
+
+### 🔧 需要优化的部分
+- **首页转化率**: 提升用户行为引导
+- **工具连贯性**: 统一工作流程体验
+- **可视化展示**: 增强知识图谱功能
+
+## 3. 详细功能设计规格
+
+### 3.1 首页优化升级 (Homepage Enhancement)
+
+#### **Hero Section 升级 - 保持现有1200px容器**
+```css
+/* 现有尺寸保持 */
+.hero-container {
+  height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* 优化内容布局 */
+.hero-content {
+  /* 主标题优化 */
+  h1: {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1.1;
+    margin-bottom: 24px;
+  }
+  
+  /* 副标题优化 */
+  p: {
+    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+    max-width: 600px;
+    margin: 0 auto 32px;
+  }
+  
+  /* CTA按钮组优化 */
+  .cta-group {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .primary-cta {
+    min-width: 200px;
+    height: 56px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  .secondary-cta {
+    min-width: 180px;
+    height: 56px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+}
+```
+
+#### **新增 Demo Preview Section - 1200px容器**
+```css
+.demo-preview {
+  margin-top: 80px;
+  padding: 40px 0;
+  
+  /* 演示视频区域 */
+  .demo-video {
+    width: 100%;
+    max-width: 800px;
+    aspect-ratio: 16/9;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  
+  /* 特性突出展示 */
+  .feature-highlights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-top: 48px;
+  }
+  
+  .feature-card {
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    text-align: center;
+  }
+}
+```
+
+### 3.2 工具区域重新设计 (Toolkit Section Redesign)
+
+#### **现有 Toolkit Section 优化 - 保持网格布局**
+```css
+/* 保持现有响应式网格 */
+.toolkit-grid {
+  /* 指南区域 */
+  .guides-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+    margin-bottom: 64px;
+  }
+  
+  /* 工具区域 */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+}
+
+/* 卡片尺寸规格 */
+.toolkit-card {
+  min-height: 200px;
+  padding: 32px 24px;
+  border-radius: 12px;
+  
+  /* 图标区域 */
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+  
+  /* 标题区域 */
+  .card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  
+  /* 描述区域 */
+  .card-description {
+    font-size: 16px;
+    line-height: 1.5;
+    color: rgba(156, 163, 175, 1);
+  }
+}
+```
+
+#### **新增 Visual Collaboration Section**
+```css
+.visual-collab-section {
+  padding: 80px 0;
+  
+  /* 标题区域 */
+  .section-header {
+    text-align: center;
+    margin-bottom: 48px;
+    
+    h2 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    
+    p {
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+  
+  /* 功能展示区域 */
+  .feature-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    margin-bottom: 48px;
+  }
+  
+  .feature-demo {
+    aspect-ratio: 4/3;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+  
+  .feature-content {
+    h3 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    
+    .feature-list {
+      list-style: none;
+      
+      li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      .check-icon {
+        width: 20px;
+        height: 20px;
+        color: #10b981;
+      }
+    }
+  }
+}
+```
+
+### 3.3 Workbench 重大升级 (Workbench Major Enhancement)
+
+#### **现有 ProcessingDashboard 保持 - 优化交互**
+```css
+/* 保持现有处理流程，优化视觉反馈 */
+.processing-dashboard {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  
+  /* 进度条优化 */
+  .progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(55, 65, 81, 1);
+    
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      transition: width 0.3s ease;
+    }
+  }
+  
+  /* 状态信息优化 */
+  .status-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 32px;
+  }
+  
+  .status-card {
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    text-align: center;
+  }
+}
+```
+
+#### **新增 Visual Knowledge Graph 组件**
+```css
+.knowledge-graph-container {
+  width: 100%;
+  height: 600px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  
+  /* 工具栏 */
+  .graph-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    .toolbar-left {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .toolbar-right {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .tool-button {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.2);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        border-color: rgba(59, 130, 246, 0.5);
+        background: rgba(59, 130, 246, 0.1);
+      }
+    }
+  }
+  
+  /* 图谱画布 */
+  .graph-canvas {
+    width: 100%;
+    height: calc(100% - 60px);
+    border-radius: 12px;
+    overflow: hidden;
+    
+    /* 节点样式 */
+    .node {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+      
+      &.selected {
+        stroke: #3b82f6;
+        stroke-width: 3px;
+      }
+    }
+    
+    /* 连线样式 */
+    .link {
+      stroke: rgba(156, 163, 175, 0.6);
+      stroke-width: 2px;
+      cursor: pointer;
+      
+      &:hover {
+        stroke: rgba(59, 130, 246, 0.8);
+        stroke-width: 3px;
+      }
+    }
+    
+    /* 标签样式 */
+    .label {
+      font-size: 12px;
+      fill: white;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+  }
+}
+```
+
+### 3.4 新增 Collaboration Hub 页面
+
+#### **页面布局设计 - 全新页面**
+```css
+.collaboration-hub {
+  min-height: 100vh;
+  background: #0f172a;
+  
+  /* 页面头部 */
+  .page-header {
+    height: 80px;
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+    
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+  }
+  
+  /* 主要内容区域 */
+  .main-content {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    gap: 0;
+    height: calc(100vh - 80px);
+  }
+  
+  /* 左侧工具面板 */
+  .tools-panel {
+    background: rgba(15, 23, 42, 0.8);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 24px;
+    overflow-y: auto;
+    
+    .tool-section {
+      margin-bottom: 32px;
+      
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: rgba(156, 163, 175, 1);
+      }
+    }
+    
+    .tool-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: rgba(59, 130, 246, 0.1);
+      }
+      
+      .tool-icon {
+        width: 24px;
+        height: 24px;
+        color: #3b82f6;
+      }
+      
+      .tool-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: white;
+      }
+    }
+  }
+  
+  /* 中央画布区域 */
+  .canvas-area {
+    background: rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+    
+    /* 网格背景 */
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+    }
+    
+    /* 便利贴样式 */
+    .sticky-note {
+      position: absolute;
+      width: 200px;
+      min-height: 200px;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 4px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      cursor: move;
+      
+      &.selected {
+        border: 2px solid #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+      }
+      
+      .note-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        
+        .note-title {
+          font-size: 14px;
+          font-weight: 600;
+          flex: 1;
+        }
+        
+        .note-actions {
+          display: flex;
+          gap: 4px;
+        }
+      }
+      
+      .note-content {
+        font-size: 13px;
+        line-height: 1.4;
+        resize: none;
+        border: none;
+        background: transparent;
+        width: 100%;
+        min-height: 120px;
+        
+        &:focus {
+          outline: none;
+        }
+      }
+    }
+  }
+  
+  /* 右侧属性面板 */
+  .properties-panel {
+    background: rgba(15, 23, 42, 0.8);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 24px;
+    overflow-y: auto;
+    
+    .panel-section {
+      margin-bottom: 32px;
+      
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: rgba(156, 163, 175, 1);
+      }
+    }
+    
+    .property-group {
+      margin-bottom: 20px;
+      
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: rgba(209, 213, 219, 1);
+      }
+      
+      input, select, textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid rgba(55, 65, 81, 1);
+        border-radius: 6px;
+        background: rgba(31, 41, 55, 1);
+        color: white;
+        font-size: 14px;
+        
+        &:focus {
+          outline: none;
+          border-color: #3b82f6;
+        }
+      }
+    }
+  }
+}
+```
+
+### 3.5 新增 Research Notes 页面
+
+#### **专业研究笔记页面布局**
+```css
+.research-notes {
+  min-height: 100vh;
+  background: #0f172a;
+  
+  /* 页面结构 */
+  .page-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: 100vh;
+  }
+  
+  /* 左侧导航 */
+  .research-sidebar {
+    background: rgba(15, 23, 42, 0.8);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 24px;
+    overflow-y: auto;
+    
+    .sidebar-header {
+      margin-bottom: 24px;
+      
+      h2 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: white;
+      }
+      
+      .new-project-btn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+      }
+    }
+    
+    .project-list {
+      .project-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background: rgba(59, 130, 246, 0.1);
+        }
+        
+        &.active {
+          background: rgba(59, 130, 246, 0.2);
+          border-left: 3px solid #3b82f6;
+        }
+        
+        .project-icon {
+          width: 24px;
+          height: 24px;
+          color: #3b82f6;
+        }
+        
+        .project-info {
+          flex: 1;
+          
+          .project-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+            margin-bottom: 4px;
+          }
+          
+          .project-meta {
+            font-size: 12px;
+            color: rgba(156, 163, 175, 1);
+          }
+        }
+      }
+    }
+  }
+  
+  /* 主要内容区域 */
+  .research-main {
+    display: grid;
+    grid-template-rows: 60px 1fr;
+    
+    .main-header {
+      background: rgba(15, 23, 42, 0.8);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      
+      .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: rgba(156, 163, 175, 1);
+      }
+      
+      .header-actions {
+        display: flex;
+        gap: 8px;
+      }
+    }
+    
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 0;
+      
+      .content-area {
+        padding: 24px;
+        overflow-y: auto;
+        
+        /* 笔记编辑器 */
+        .note-editor {
+          background: rgba(15, 23, 42, 0.8);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 24px;
+          min-height: 600px;
+          
+          .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            
+            .note-title {
+              font-size: 24px;
+              font-weight: 700;
+              color: white;
+              background: transparent;
+              border: none;
+              width: 100%;
+              
+              &:focus {
+                outline: none;
+              }
+              
+              &::placeholder {
+                color: rgba(156, 163, 175, 0.5);
+              }
+            }
+            
+            .editor-actions {
+              display: flex;
+              gap: 8px;
+            }
+          }
+          
+          .editor-content {
+            .markdown-editor {
+              width: 100%;
+              min-height: 500px;
+              background: transparent;
+              border: none;
+              color: white;
+              font-size: 16px;
+              line-height: 1.6;
+              resize: none;
+              
+              &:focus {
+                outline: none;
+              }
+              
+              &::placeholder {
+                color: rgba(156, 163, 175, 0.5);
+              }
+            }
+          }
+        }
+      }
+      
+      .insights-panel {
+        background: rgba(15, 23, 42, 0.8);
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 24px;
+        overflow-y: auto;
+        
+        .panel-section {
+          margin-bottom: 32px;
+          
+          .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            
+            h3 {
+              font-size: 16px;
+              font-weight: 600;
+              color: white;
+            }
+            
+            .section-action {
+              font-size: 12px;
+              color: #3b82f6;
+              cursor: pointer;
+              
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+          
+          .section-content {
+            .insight-item {
+              padding: 12px;
+              background: rgba(31, 41, 55, 0.5);
+              border-radius: 8px;
+              margin-bottom: 8px;
+              font-size: 14px;
+              color: rgba(209, 213, 219, 1);
+              
+              .insight-label {
+                font-weight: 500;
+                color: #3b82f6;
+                margin-bottom: 4px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## 4. 开发实施计划
+
+### 4.1 Phase 3A: 界面优化 (第1-2周)
+
+#### **联合创始人A (技术实现)**
+- [ ] 优化首页Hero Section，保持现有组件结构
+- [ ] 增强Toolkit Section的视觉效果和交互
+- [ ] 优化Workbench现有流程的用户体验
+- [ ] 实现Visual Knowledge Graph组件
+
+#### **联合创始人B (内容&设计)**
+- [ ] 制作产品演示视频内容
+- [ ] 设计新的视觉元素和图标
+- [ ] 优化现有文案的转化效果
+- [ ] 创建用户使用指南
+
+### 4.2 Phase 3B: 新功能开发 (第3-4周)
+
+#### **联合创始人A (技术实现)**
+- [ ] 开发Collaboration Hub页面
+- [ ] 实现便利贴拖拽功能
+- [ ] 开发Research Notes页面
+- [ ] 集成新的AI分析功能
+
+#### **联合创始人B (内容&运营)**
+- [ ] 创建协作工具使用案例
+- [ ] 开发研究笔记模板
+- [ ] 准备功能发布内容
+- [ ] 设计用户引导流程
+
+### 4.3 Phase 3C: 优化迭代 (第5-6周)
+
+#### **联合创始人A (技术优化)**
+- [ ] 性能优化和错误修复
+- [ ] 响应式设计完善
+- [ ] 添加快捷键支持
+- [ ] 实现数据导出功能
+
+#### **联合创始人B (用户体验)**
+- [ ] 用户测试和反馈收集
+- [ ] 界面细节优化
+- [ ] 帮助文档完善
+- [ ] 营销推广准备
+
+## 5. 技术实现细节
+
+### 5.1 保持现有技术栈
+- **前端**: Next.js 14 + TypeScript + Tailwind CSS
+- **AI集成**: OpenRouter (保持现有多模型支持)
+- **部署**: Vercel (保持现有配置)
+- **数据存储**: 保持现有的文件系统方案
+
+### 5.2 新增技术组件
+- **图谱可视化**: D3.js 或 Cytoscape.js
+- **拖拽交互**: @dnd-kit/core
+- **实时协作**: Socket.io (可选)
+- **Markdown编辑**: 现有MDX扩展
+
+### 5.3 性能要求
+- **保持现有优秀性能**: LCP < 2.5秒
+- **新功能响应性**: 交互延迟 < 100ms
+- **移动端适配**: 保持现有响应式设计
+
+## 6. 成功指标
+
+### 6.1 技术指标
+- **现有功能**: 保持100%向后兼容
+- **新功能**: 95%以上的功能可用性
+- **性能**: 不降低现有页面加载速度
+
+### 6.2 用户指标
+- **用户留存**: 现有用户保持率 > 90%
+- **新用户转化**: 试用转化率提升30%
+- **功能使用**: 新功能月活跃率 > 40%
+
+### 6.3 业务指标
+- **流量增长**: 月访问量增长50%
+- **用户参与**: 平均会话时长增长25%
+- **口碑传播**: 社交分享增长60%
+
+## 7. 风险管控
+
+### 7.1 技术风险
+- **现有功能稳定性**: 增量式开发，避免破坏性变更
+- **性能影响**: 新功能异步加载，不影响核心功能
+- **兼容性**: 确保在各主流浏览器正常运行
+
+### 7.2 用户体验风险
+- **学习成本**: 新功能提供详细引导
+- **界面复杂性**: 保持现有简洁设计原则
+- **功能发现**: 合理的信息架构设计
+
+### 7.3 开发风险
+- **时间管理**: 采用敏捷开发，分阶段交付
+- **质量控制**: 每个功能完成后立即测试
+- **协作效率**: 明确分工，定期同步进度
+
+## 8. 敏捷协作流程
+
+### 8.1 日常协作
+- **每日站会**: 15分钟进度同步
+- **代码评审**: 互相review所有代码变更
+- **快速迭代**: 每周至少一次功能发布
+
+### 8.2 任务分工
+- **技术实现**: 组件开发、API集成、性能优化
+- **产品设计**: 用户体验、视觉设计、内容创作
+- **共同决策**: 产品方向、功能优先级、发布节奏
+
+### 8.3 沟通机制
+- **实时沟通**: 技术问题即时讨论
+- **文档记录**: 重要决策和变更记录
+- **用户反馈**: 共同分析和响应用户需求
+
+---
+
+**文档状态**: ✅ V3.0 已批准执行  
+**下一步**: 立即开始Phase 3A的界面优化工作

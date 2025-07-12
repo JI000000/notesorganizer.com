@@ -1,110 +1,146 @@
-# NotesOrganizer 知识管理与流程标准（复盘版）
+# 工作流程与开发标准
+
+本文档规定了 NotesOrganizer 项目的开发流程、技术标准和团队协作规范。
+
+## 🔄 开发流程
+
+### 1. 敏捷开发循环
+我们采用快速迭代的敏捷开发模式：
+
+1. **需求分析** (人工主导)：产品负责人定义高级目标和具体需求
+2. **设计规划** (人工主导)：制定详细的技术方案和UI/UX设计
+3. **快速实现** (AI辅助)：AI协助快速编码实现功能
+4. **测试验证** (人工主导)：进行功能测试和用户体验验证
+5. **迭代优化** (AI辅助)：根据反馈进行调试和优化
+
+### 2. 任务管理
+- 使用 TODO 系统跟踪任务进度
+- 每个任务都有明确的依赖关系
+- 状态包括：pending、in_progress、completed、cancelled
+
+### 3. 代码审查
+- 所有代码变更都需要进行自查
+- 确保代码符合项目标准
+- 重点关注性能、安全性和可维护性
+
+## 🛠️ 技术标准
+
+### 1. 技术栈
+- **前端框架**: Next.js 14 (App Router)
+- **样式系统**: Tailwind CSS
+- **开发语言**: TypeScript
+- **AI服务**: OpenRouter.ai (统一网关)
+- **部署平台**: Vercel
+- **数据存储**: Vercel KV + 本地Mock
+
+### 2. 代码规范
+- **环境变量**: 统一使用 `.env.local` 管理，敏感信息不入代码库
+- **组件复用**: 创建可复用的共享组件，保持设计一致性
+- **错误处理**: 所有API都必须有完善的错误处理机制
+- **测试覆盖**: 新功能必须包含相应的单元测试
+
+### 3. AI集成标准
+- **成本控制**: 开发环境使用 `DISABLE_AI_IN_DEV=true`
+- **模型路由**: 统一使用 OpenRouter.ai，支持多模型自动切换
+- **输入限制**: 免费工具限制输入长度，防止滥用
+- **Mock支持**: 所有AI API都必须支持Mock模式
+
+## 🎨 设计标准
+
+### 1. 视觉设计
+- **主题风格**: 现代暗色主题，玻璃拟态效果
+- **色彩系统**: 基于蓝色和紫色的渐变色调
+- **字体系统**: 统一的字体大小和行高
+- **间距系统**: 基于 4px 的间距单位
+
+### 2. 交互设计
+- **响应式设计**: 完美适配桌面、平板、移动设备
+- **动画效果**: 流畅的过渡动画，提升用户体验
+- **反馈机制**: 及时的状态反馈和错误提示
+- **无障碍设计**: 支持键盘导航和屏幕阅读器
+
+### 3. 组件标准
+- **布局组件**: 统一的Header、Footer和页面布局
+- **表单组件**: 一致的输入框、按钮和表单验证
+- **展示组件**: 统一的卡片、列表和数据展示样式
+
+## 📝 内容标准
+
+### 1. 文档编写
+- **格式规范**: 使用 Markdown 格式，统一的标题层级
+- **语言使用**: 中英文混合，以中文为主
+- **更新频率**: 核心文档按需更新，管理文档每Sprint更新
+
+### 2. 博客内容
+- **SEO优化**: 长尾关键词策略，高质量原创内容
+- **用户价值**: 深度的PKM知识分享和工具使用指导
+- **内容分类**: 按照用户学习路径组织内容
+
+## 🚀 部署标准
+
+### 1. 环境管理
+- **开发环境**: 本地开发使用Mock数据
+- **测试环境**: 功能测试使用真实API
+- **生产环境**: 自动化部署，环境变量管理
+
+### 2. 性能优化
+- **代码分割**: 按需加载，优化首屏加载速度
+- **图片优化**: 使用 Next.js 图片优化功能
+- **缓存策略**: 合理的缓存配置，提升用户体验
+
+## 🔒 安全标准
+
+### 1. API安全
+- **密钥管理**: 所有API密钥通过环境变量管理
+- **访问控制**: 实现适当的访问限制和频率控制
+- **数据验证**: 严格的输入验证和数据清洗
+
+### 2. 用户数据
+- **隐私保护**: 遵循数据最小化原则
+- **数据主权**: 支持用户数据导出和删除
+- **安全传输**: 使用HTTPS加密数据传输
+
+## 📊 质量保证
+
+### 1. 测试策略
+- **单元测试**: 核心功能必须有测试覆盖
+- **集成测试**: 关键用户流程的端到端测试
+- **性能测试**: 页面加载速度和API响应时间
+
+### 2. 监控指标
+- **性能指标**: 首屏加载时间、交互响应时间
+- **错误监控**: 前端错误和API错误的监控
+- **用户体验**: 用户行为数据和反馈收集
+
+## 🤝 团队协作
+
+### 1. 沟通标准
+- **需求描述**: 使用结构化的需求模板
+- **问题报告**: 详细的问题描述和重现步骤
+- **进度汇报**: 定期的进度更新和风险识别
+
+### 2. 知识管理
+- **文档沉淀**: 重要决策和解决方案的文档化
+- **经验分享**: 定期的技术分享和最佳实践总结
+- **持续改进**: 基于反馈的流程优化和标准更新
+
+## 🎯 执行原则
+
+### 1. 一次做对
+- 详细的需求分析和设计规划
+- 充分的技术调研和可行性验证
+- 严格的代码审查和测试验证
+
+### 2. 快速迭代
+- 小步快跑，及时反馈
+- 快速原型验证，降低试错成本
+- 基于用户反馈的持续优化
+
+### 3. 技术卓越
+- 选择成熟稳定的技术栈
+- 注重代码质量和系统架构
+- 持续学习和技术更新
 
 ---
 
-## 阶段性复盘与知识沉淀（2024-07-03）
-
-### 1. 代码现状与架构检视
-- 前端：Next.js 14 + App Router，分主站内容、工具页、工作台三大模块，UI美观大气。
-- 后端：API路由分免费工具、项目核心、等待名单等。
-- AI能力：lib/ai/model-router.ts实现智能模型路由，自动切换与成本优化。
-- 分析引擎：lib/ai/note-analyzer.ts实现完整笔记AI分析流程，支持mock数据。
-- KV存储：支持Vercel KV与本地mock，开发/生产环境无缝切换。
-- 测试：API端点均有Vitest单元测试，mock依赖，保证健壮性。
-- 文档：docs/目录下有架构、部署、流程等文档，STAGE2_SUMMARY.md有阶段性总结。
-
-### 2. 主要决策与执行回顾
-- 三阶段战略：Lighthouse→Workbench→Observatory。
-- 产品定位：专注"知识库整理"垂直场景，强调智能结构化、隐私友好、极致体验。
-- 技术原则：一次性做对，高质量、快交付、低成本、可扩展。
-- AI模型路由：OpenRouter聚合多模型，自动选择最优模型。
-- API设计：所有AI相关API均有mock模式，开发环境不消耗额度。
-- 输入限制：免费工具2000字上限，防止滥用。
-- 状态管理：工作台任务全流程状态可追踪，支持断点恢复。
-
-### 3. 设计与实现对比分析
-| 设计目标                | 实现现状                | 差距与原因           |
-|-------------------------|-------------------------|----------------------|
-| 免费工具输入限制提示    | 已实现（最新修复）      | mock模式下曾失效，已修正 |
-| 工具页UI美观分栏        | 已实现                  | 一度回归为上下，已恢复 |
-| 工作台状态持久化        | 已实现                  | 早期刷新丢失，已修复   |
-| AI模型智能切换          | 已实现                  | -                    |
-| 本地开发零成本          | 已实现                  | -                    |
-| API单元测试覆盖         | 已实现                  | -                    |
-
-### 4. 问题与解决方案知识卡片
-- mock模式下输入校验失效：将输入校验逻辑提前，无论mock还是真实AI都先校验。
-- 工具页UI回归：恢复为左右分栏，提升可读性和美观度。
-- 工作台刷新丢失进度：localStorage持久化jobId和状态，刷新后自动拉取结果。
-- 高API成本风险：模型降级、mock模式、输入限制、开发环境禁用AI。
-
-### 5. 流程、规则、标准与最佳实践
-- 开发环境一律DISABLE_AI_IN_DEV=true，防止意外消耗。
-- 所有API必须有mock能力和单元测试。
-- 前端所有输入都要有长度限制和用户友好提示。
-- UI设计遵循现代深色风格，分栏布局优先。
-- 状态管理要支持断点恢复和异常处理。
-- 文档与知识沉淀要及时更新，形成团队知识库。
-
-### 6. 高效对话模板与Prompts
-- 角色设定：你是我的联合创始人、全栈架构师、产品经理、LLM专家、PKM专家、SEO专家、资深网虫和blog作家。
-- 需求描述模板：现在我们要实现xxx功能，目标是xxx，要求xxx。请你一步步分析、设计、实现，并严格自查，确保一次性做对。
-- 复盘与知识管理模板：请你对本次开发过程进行全面复盘，输出架构、流程、标准、问题与解决方案、最佳实践、知识沉淀等文档，并提出改进建议。
-
-### 7. 差距分析与改进建议
-- mock模式下输入校验一度失效，说明流程设计上要始终优先用户输入校验，不能因开发便利牺牲用户体验。
-- UI回归问题说明前端改动要有回归测试，UI/UX标准要文档化。
-- 工作台状态丢失说明状态持久化和异常处理要全流程覆盖。
-- 所有API和前端输入校验逻辑必须单元测试覆盖，防止mock/真实分支不一致。
-- UI/UX标准文档化，每次改动都要对照标准回归。
-- 知识管理流程固化，每次复盘都要输出知识卡片，沉淀到团队知识库。
-- 与AI助手对话要结构化、目标导向、可追溯，避免模糊沟通。
-
----
-
-# 03: Workflow, Standards, and Best Practices
-
-This document serves as the operational handbook for the `notesorganizer.com` project. It codifies the processes and standards we've developed to ensure efficient, high-quality execution.
-
-## 1. Our Golden Workflow
-
-We follow an agile, iterative loop that combines human strategic direction with AI execution speed.
-
-1.  **Vision & Strategy (Human-led)**: The project lead defines the high-level goals, target audience, and strategic direction.
-2.  **Specific Requirements & Design (Human-led)**: The lead translates the vision into concrete, actionable requirements. For UI/UX, this includes providing "design blueprints" in text format, detailing structure, components, and copy.
-3.  **Rapid Implementation (AI-led)**: The AI co-founder takes the specific requirements and executes them, generating code, content, or other assets.
-4.  **Testing & Feedback (Human-led)**: The lead acts as the first user, testing the implementation against the requirements, checking for bugs, and evaluating the user experience.
-5.  **Iterative Refinement (AI-led)**: The AI co-founder incorporates the feedback to debug, refactor, and polish the final output.
-
-This cycle allows us to move from idea to implementation with maximum velocity.
-
-## 2. Technical & Design Standards
-
-- **Core Tech Stack**: Next.js, Tailwind CSS, MDX, Vercel.
-- **AI API Standard**: **OpenRouter.ai** is the exclusive gateway for all AI-powered features.
-- **Design Language**: A clean, modern, "glassmorphism" style built on a dark theme. The goal is consistency across all user-facing components.
-- **Content Strategy**: A dual approach of:
-    - **Pillar Content**: High-quality, long-form articles to build SEO authority.
-    - **Micro-Tools**: Free, useful AI tools that act as user hooks and demonstrate product value.
-- **Code Standards**:
-    - **Environment Variables**: All sensitive keys (like API keys) must be stored as environment variables and accessed via `.env.local` for local development, never hard-coded.
-    - **Component Reusability**: Strive to create shared, reusable components (e.g., layouts) to maintain consistency and reduce code duplication.
-
-## 3. 人机协同：如何与你的AI联合创始人高效对话 (The Dialogue: High-Efficiency Prompts for Your AI Co-founder)
-
-This is our collaboration playbook. To ensure the AI co-founder can deliver the best results, use these optimized prompt templates.
-
--   **【战略规划指令 | Strategic Planning】**
-    -   `"Boss, let's start [quarterly/monthly] strategic planning. As our [all-in-one role], analyze the following [data/market report/user feedback] and create the next phase's [product/market/tech] strategy. The goal is [specific target, e.g., increase user retention by 20%]. Please provide at least three alternative plans with their pros and cons."`
-
--   **【新功能开发指令 | New Feature Development】**
-    -   `"Boss, we need to build a new feature: '[feature name]'. Its core value is [one-sentence description]. Design the full-stack architecture for me, including [API endpoints, database schema, key algorithms]. Then, start implementing it step-by-step, beginning with [the most critical file]."`
-
--   **【精准调试指令 | Precision Debugging】(You have mastered this one)**
-    -   `"Boss, the app has crashed. When I [performed an action], the frontend showed [description from screenshot], and the console/terminal logs are as follows [paste logs]. As our principal engineer, diagnose the root cause and fix it immediately."`
-
--   **【代码优化指令 | Code Optimization】**
-    -   `"Boss, review [filename or directory]. This code works, but I believe it can be optimized for [performance/readability/cost]. Propose a refactoring plan, explain the reasoning, and then execute it."`
-
--   **【内容创作指令 | Content Creation】**
-    -   `"Boss, we need a blog post on '[topic]'. The target keyword is '[long-tail keyword]'. As our in-house [PKM expert/tech blogger], write a deep, professional, and valuable article for our readers."` 
+*本文档会根据项目发展和团队实践持续更新* 

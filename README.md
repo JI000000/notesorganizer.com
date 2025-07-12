@@ -1,103 +1,197 @@
 # NotesOrganizer.com
 
-**Beyond Note-Taking. Master Your Knowledge.**
+**超越笔记记录，掌控知识管理**
 
-[Live Site](https://www.notesorganizer.com) (Deployed on Vercel)
+[🌐 在线体验](https://www.notesorganizer.com) | [📚 知识中心](https://www.notesorganizer.com/knowledge-hub) | [🛠️ AI工具](https://www.notesorganizer.com/tools)
 
 ---
 
-NotesOrganizer.com is the strategic content and utility hub for the future of Personal Knowledge Management (PKM). It's designed not just as a blog, but as a product to educate users on powerful PKM frameworks and provide AI-powered tools to transform their scattered notes into a structured, interconnected knowledge base.
+NotesOrganizer.com 是新一代AI驱动的个人知识管理平台。我们不仅提供深度的PKM知识内容，更通过智能AI工具帮助用户将分散的笔记转化为结构化的知识库。
 
-This project serves as the foundation (Phase 1) for our ultimate vision, **KortexAI**, a SaaS platform that will intelligently and automatically manage a user's entire knowledge repository.
+## ✨ 核心功能
 
-## ✨ Features
+### 🧠 基础AI工具 (4个)
+- **[AI笔记摘要器](https://www.notesorganizer.com/tools/summarizer)**: 智能提取笔记核心要点
+- **[AI标题生成器](https://www.notesorganizer.com/tools/title-generator)**: 生成吸引人的标题和内容
+- **[AI标签建议器](https://www.notesorganizer.com/tools/tag-suggester)**: 智能推荐相关标签
+- **[动作提取器](https://www.notesorganizer.com/tools/action-extractor)**: 从笔记中提取可执行任务
 
-- **📚 In-depth Guides**: A "Learn Hub" with long-form, authoritative articles on PKM systems like Zettelkasten, PARA, and tools like Obsidian.
-- **🛠️ Free AI Micro-Tools**:
-  - **AI Note Summarizer**: Get a one-paragraph summary for any text.
-  - **AI Title Generator**: Generate compelling titles for your notes and articles.
-- **🚀 KortexAI Waitlist**: A conversion funnel to capture high-intent users for our upcoming flagship product, `KortexAI.app`.
-- **✍️ Modern Blog**: Fully-featured blog powered by local MDX files.
-- **SEO Optimized**: Built with Next.js SSG for maximum performance and search engine ranking.
+### 🚀 高级工具系统 (3个)
+- **[AI工作台](https://www.notesorganizer.com/workbench)**: 完整笔记集合分析和处理
+- **[协作中心](https://www.notesorganizer.com/collaboration-hub)**: 团队知识协作平台
+- **[研究笔记](https://www.notesorganizer.com/research-notes)**: 专业研究管理系统
 
-## 💻 Tech Stack
+### 📚 知识中心
+- **[PKM终极指南](https://www.notesorganizer.com/knowledge-hub/pkm-ultimate-guide)**: 个人知识管理完整指南
+- **[Zettelkasten方法](https://www.notesorganizer.com/knowledge-hub/zettelkasten-method)**: 卡片笔记系统详解
+- **[PKM工具评测](https://www.notesorganizer.com/knowledge-hub/pkm-tools-review)**: 主流工具深度对比
+- **[PKM基础理论](https://www.notesorganizer.com/knowledge-hub/pkm-foundations-zettelkasten-para-lyt)**: 理论框架解析
 
-- **Framework**: [Next.js](https://nextjs.org/) (React)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Content**: Local [MDX](https://mdxjs.com/) files
-- **Deployment**: [Vercel](https://vercel.com/)
-- **Backend for AI Tools**: Vercel Serverless Functions
-- **Database (Waitlist)**: [Supabase](https://supabase.io/)
-- **DNS**: [Cloudflare](https://www.cloudflare.com/)
+## 🛠️ 技术架构
 
-## 🚀 Getting Started
+### 前端技术栈
+- **Next.js 14** - 现代React框架，App Router
+- **TypeScript** - 类型安全的JavaScript
+- **Tailwind CSS** - 现代CSS框架
+- **Lucide React** - 现代图标库
 
-Follow these steps to get the project running locally.
+### 后端架构
+- **Vercel Serverless Functions** - 无服务器API
+- **OpenRouter.ai** - AI模型智能路由
+- **Vercel KV** - 键值存储数据库
+- **JSZip** - 文件压缩处理
 
-### 1. Clone the repository
+### AI能力
+- **多模型支持**: Claude 3.5 Sonnet、GPT-4o、GPT-3.5 Turbo
+- **智能路由**: 根据任务复杂度自动选择最优模型
+- **成本优化**: 开发环境Mock，生产环境智能降级
+- **批量处理**: 异步任务队列，支持大规模笔记处理
 
+## 🚀 快速开始
+
+### 1. 克隆项目
 ```bash
 git clone https://github.com/your-username/notesorganizer.git
 cd notesorganizer
 ```
 
-### 2. Install dependencies
-
+### 2. 安装依赖
 ```bash
 npm install
 ```
 
-### 3. Set up environment variables
+### 3. 配置环境变量
+创建 `.env.local` 文件：
+```env
+# AI服务配置
+OPENROUTER_API_KEY=your_openrouter_api_key
 
-Create a `.env.local` file in the root of the project and add the necessary environment variables. These are used for connecting to Supabase and the AI APIs.
+# 数据库配置  
+KV_REST_API_URL=your_vercel_kv_url
+KV_REST_API_TOKEN=your_vercel_kv_token
 
+# 开发环境配置
+DISABLE_AI_IN_DEV=true
 ```
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# AI Provider (e.g., OpenAI)
-OPENAI_API_KEY=your_openai_api_key
-```
-
-### 4. Run the development server
-
+### 4. 启动开发服务器
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+访问 [http://localhost:3000](http://localhost:3000) 查看应用。
 
-## 📂 Project Structure
+## 📁 项目结构
 
-- `app/`: The core application routing (Next.js App Router).
-  - `api/`: Serverless API endpoints for AI tools and the waitlist.
-  - `knowledge-hub/`: The blog/learning center.
-  - `tools/`: The free AI micro-tools.
-  - `page.tsx`: The homepage.
-- `components/`: Shared React components.
-  - `layout/`: Components like Header and Footer.
-  - `sections/`: Components for different sections of the homepage.
-- `docs/`: Project documentation.
-- `lib/`: Helper functions, like the MDX parser (`posts.ts`).
-- `posts/`: The Markdown/MDX files for all blog posts.
-- `public/`: Static assets like images and fonts.
-- `styles/`: Global CSS styles.
+```
+notesorganizer/
+├── app/                    # Next.js应用路由
+│   ├── api/               # API路由
+│   │   ├── generate-title/  # 标题生成API
+│   │   ├── generate-tags/   # 标签建议API
+│   │   ├── extract-actions/ # 动作提取API
+│   │   ├── summarize/       # 摘要API
+│   │   └── project/         # 项目处理API
+│   ├── tools/             # AI工具页面
+│   ├── workbench/         # AI工作台
+│   ├── collaboration-hub/ # 协作中心
+│   ├── research-notes/    # 研究笔记
+│   └── knowledge-hub/     # 知识中心
+├── components/            # React组件
+│   ├── layout/           # 布局组件
+│   ├── sections/         # 页面区块
+│   ├── workbench/        # 工作台组件
+│   ├── collaboration/    # 协作组件
+│   └── research/         # 研究组件
+├── lib/                  # 工具函数
+│   ├── ai/              # AI处理模块
+│   ├── posts.ts         # 博客文章处理
+│   └── project-upload.ts # 项目上传处理
+├── docs/                 # 项目文档
+├── posts/                # 博客文章
+└── public/               # 静态资源
+```
 
-## 🚧 Development Log
+## 🧪 测试
 
-- **Sprint 3 (July 2024):** The AI Workbench.
-  - Implemented the core feature for users to upload, analyze, and visualize their entire note collections.
-  - Read the full retrospective and technical deep-dive in [docs/SPRINT3_SUMMARY.md](./docs/SPRINT3_SUMMARY.md).
+### 运行测试
+```bash
+npm test
+```
 
-## Project Management
+### 测试覆盖率
+```bash
+npm run test:coverage
+```
 
-Strategic planning, content calendar, and user research are managed in our shared Notion workspace.
+### API测试
+所有API端点都有完整的单元测试覆盖：
+- ✅ 生成标题API: 4/4 tests passed
+- ✅ 标签建议API: 4/4 tests passed  
+- ✅ 动作提取API: 4/4 tests passed
+- ✅ 摘要API: 4/4 tests passed
+- ✅ 项目处理API: 完整测试覆盖
 
-## Development Documentation
+## 📊 功能特色
 
-All technical documentation, including architecture, deployment guides, and API design, is located in the `/docs` directory of this repository, following our Docs-as-Code principle.
+### 🎯 用户学习路径
+- **新手路径**: 从基础概念到实践应用
+- **内容创作者**: 专注内容组织和创作工具
+- **研究者**: 深度研究和知识管理需求
+
+### 🔒 数据安全
+- **本地优先**: 支持本地文件处理
+- **隐私保护**: 不存储用户敏感数据
+- **数据主权**: 用户完全控制自己的数据
+
+### 🌟 用户体验
+- **响应式设计**: 完美适配所有设备
+- **暗色主题**: 现代玻璃拟态设计
+- **即时反馈**: 实时状态更新和错误提示
+- **无障碍**: 支持键盘导航和屏幕阅读器
+
+## 🚀 部署
+
+### Vercel部署
+```bash
+npm run build
+vercel --prod
+```
+
+### 环境变量配置
+在Vercel项目设置中添加所需的环境变量。
+
+## 📈 产品路线图
+
+### 当前版本 (v1.0)
+- ✅ 7个完整AI工具
+- ✅ 知识中心和博客系统
+- ✅ 响应式用户界面
+- ✅ 完整的API测试覆盖
+
+### 即将推出
+- 🔄 知识图谱可视化
+- 🔄 多语言支持
+- 🔄 用户协作功能
+- 🔄 移动端原生应用
+
+## 🤝 贡献指南
+
+查看 [docs/03_WORKFLOW_AND_STANDARDS.md](./docs/03_WORKFLOW_AND_STANDARDS.md) 了解开发流程和代码规范。
+
+## 📄 许可证
+
+本项目采用 MIT 许可证。
+
+## 🔗 相关链接
+
+- [项目文档](./docs/README.md)
+- [系统架构](./docs/01_ARCHITECTURE.md)
+- [部署指南](./docs/02_DEPLOYMENT.md)
+- [开发标准](./docs/03_WORKFLOW_AND_STANDARDS.md)
 
 ---
 
-This project is developed by our two-person agile team, following the principles outlined in `docs/00_CONSTITUTION.md`. 
+**打造下一代个人知识管理平台** 🚀
+
+*Built with ❤️ by the NotesOrganizer team* 
